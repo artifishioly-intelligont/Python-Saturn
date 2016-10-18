@@ -1,5 +1,5 @@
 from flask import Flask
-from classifier import poo
+from classifier import basic_classifier
 app = Flask('Saturn')
 
 
