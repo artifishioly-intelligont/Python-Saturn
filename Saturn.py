@@ -1,5 +1,6 @@
 from flask import Flask
 from classifier import basic_classifier
+from olivia import vectorizer
 app = Flask('Saturn')
 
 
