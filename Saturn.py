@@ -7,6 +7,7 @@ app = Flask('Saturn')
 @app.route('/')
 def index():
 	return 'Home'
+
 #POST
 """
 The endpoint used to teach the classifier.
