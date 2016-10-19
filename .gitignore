@@ -1,4 +1,14 @@
+# Compiled python files
 *.pyc
+
+# vim swap files
 *.swp
+
+#Virtual env 
 venv/
+
+# The model files
 *.prm
+
+# IntelliJ
+.idea
