@@ -35,7 +35,19 @@ Return:	- class - The class that the img is believed to belong to
 """
 @app.route('/guess')
 def guess():
-	return 'guess'
+	#What we want to do:
+	# They tell us an img_url = the sub image
+	# We download it
+	# We then convert it to an attr vec
+	# we give the attr vec to the classifier, it guesses the class
+	# we give the class back to the GUI
+	
+	img_loc = 'Get this from the request' # We need to extract the img_loc from the post
+	attr_vec = vectorizer.extract_attributes(img_loc)
+	img_class = basic_classifier.guess(attr_vec)
+	
+	return_json = "{ \"class\":\"%s\" }"  % img_class # We need to have a method to make this nice
+	return return_json
 
 #GET
 """
