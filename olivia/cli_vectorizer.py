@@ -8,7 +8,7 @@ from neon.backends import gen_backend
 from neon.data import ArrayIterator
 from neon.models import Model
 from neon.util.argparser import NeonArgparser
-from os.path import split, splitext
+from os.path import split, splitext, isfile
 from scipy.misc import imread, imsave
 
 #pretty printing full ndarrays
@@ -16,11 +16,14 @@ def ndprint(a, format_string ='{0:.2f}'):
     print [format_string.format(v,i) for i,v in enumerate(a)]
 
 
+model_path = 'Googlenet_791113_192patch.prm'
+model_URL = 'http://degas.ecs.soton.ac.uk/~productizer/Googlenet_791113_192patch.prm'
+
 parser = NeonArgparser(__doc__)
 
 parser.add_argument('--image', dest='image',
 					help="A string path to the location of an image readable by scipy's imread")
-parser.add_argument('--prm-name', dest='prm_name', default='Googlenet_791113_192patch.prm',
+parser.add_argument('--prm-name', dest='prm_name', default= model_path,
 					help="The name of the prm to use as a model")
 parser.add_argument('--layer', dest='layer_index', default=-4,
 					help="The index of the layer to extract the activations from")
@@ -30,6 +33,30 @@ args = parser.parse_args()
 # load the cnn model
 gen_backend(batch_size=1, backend='cpu')
 # gen_backend(batch_size=32, backend='gpu')
+
+# Assert that the model has been downloaded and added to the location
+if not isfile(args.prm_name):
+	print '\n\n\n'
+	print '\t\t!!ERROR - Missing File!!\n'
+	print 'Error: You have not included the file %s' % model_path
+	print 'Download the file from: %s' % model_URL
+	print '\n\n\n'
+	exit(-1)
+	
+# Assert that the model has been downloaded and added to the location
+if not args.image:
+	print '\n\n\n'
+	print '\t\t!!ERROR - Arguement left empty !!\n'
+	print 'Error: You have not specified which image to vectorize'
+	print '\n\n\n'
+	exit(-1)
+elif not isfile(args.image):
+	print '\n\n\n'
+	print '\t\t!!ERROR - Missing File!!\n'
+	print 'Error: You have not included the map image file %s' % args.image
+	print '\n\n\n'
+	exit(-1)
+
 
 model_dict = load_obj(args.prm_name)
 model = Model(model_dict)
