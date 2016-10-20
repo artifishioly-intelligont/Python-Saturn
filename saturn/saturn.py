@@ -1,7 +1,7 @@
 from flask import Flask
 from classifier import basic_classifier
 import olivia
-import tool
+import tools
 
 app = Flask('Saturn')
 
@@ -43,12 +43,17 @@ def guess(degas_img_name):
     # We then convert it to an attr vec
     # we give the attr vec to the classifier, it guesses the class
     # we give the class back to the GUI
-    local_dest = 'map.jpg'
-    tool.download(degas_img_name, local_dest)
+
+    # Find somewhere to store the image
+    local_dest = tools.images.new_location()
+    # Store the image there
+    tools.download(degas_img_name, local_dest)
+    # Convert that image to an attr vec
     attr_vec = olivia.get_attr_vec(local_dest)
+    # guess what's in the attr vec!
     img_class = basic_classifier.guess(attr_vec)
 
-    return_json = "{ \"class\":\"%s\" }" % img_class  # We need to have a method to make this nice
+    return_json = "{ \"class\":\"%s\" }" % img_class  #TODO: Make a JSON maker (might be a flask function for it)
     return return_json
 
 
