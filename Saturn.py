@@ -1,6 +1,7 @@
 from flask import Flask
 from classifier import basic_classifier
 from olivia import vectorizer
+import tools
 
 app = Flask('Saturn')
 
@@ -17,7 +18,6 @@ The endpoint used to teach the classifier.
 Access: POST
 Fields:	- img_url - Where the image is stored
 	- class - What class the img really belongs to
-	-
 
 Return: - ??success or fail??
 """
@@ -31,7 +31,6 @@ Endpoint to tell the user what class the image is guessed to belong to
 
 Access: POST
 Fields:	- img_url
-	- ?
 
 Return:	- class - The class that the img is believed to belong to
 
@@ -46,7 +45,8 @@ def guess():
     # we give the class back to the GUI
 
     img_loc = 'Get this from the request'  # We need to extract the img_loc from the post
-    attr_vec = vectorizer.extract_attributes(img_loc)
+    tools.download_image(img_loc, local_dest)
+    attr_vec = vectorizer.extract_attributes(local_dest)
     img_class = basic_classifier.guess(attr_vec)
 
     return_json = "{ \"class\":\"%s\" }" % img_class  # We need to have a method to make this nice
