@@ -37,13 +37,6 @@ Return:	- class - The class that the img is believed to belong to
 """
 @app.route('/guess/<degas_img_name>')
 def guess(degas_img_name):
-    # What we want to do:
-    # They tell us an img_url = the sub image
-    # We download it
-    # We then convert it to an attr vec
-    # we give the attr vec to the classifier, it guesses the class
-    # we give the class back to the GUI
-
     # Find somewhere to store the image
     local_dest = tools.images.new_location()
     # Store the image there
@@ -53,7 +46,7 @@ def guess(degas_img_name):
     # guess what's in the attr vec!
     img_class = basic_classifier.guess(attr_vec)
 
-    return_json = "{ \"class\":\"%s\" }" % img_class  #TODO: Make a JSON maker (might be a flask function for it)
+    return_json = "{ \"class\":\"%s\" }" % img_class  #TODO: Make a JSON cnnverter (might be a flask function for it)
     return return_json
 
 
