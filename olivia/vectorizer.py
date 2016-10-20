@@ -1,4 +1,5 @@
 import numpy as np
+import os.path
 
 from neon import NervanaObject
 from neon.util.persist import load_obj
@@ -9,13 +10,14 @@ from neon.util.argparser import NeonArgparser
 from os.path import split, splitext, isfile
 from scipy.misc import imread, imsave
 
+
 # pretty printing full ndarrays
 def ndprint(a, format_string='{0:.2f}'):
     print [format_string.format(v, i) for i, v in enumerate(a)]
 
 
 def image_is_local(img_path):
-    return True #TODO make this check for image on the local file
+    return os.path.isfile(img_path)
 
 
 class Vectorizer:
