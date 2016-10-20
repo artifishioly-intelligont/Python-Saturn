@@ -12,3 +12,6 @@ venv/
 
 # IntelliJ
 .idea
+
+# OSX stuff
+.DS_store
