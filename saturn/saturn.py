@@ -1,7 +1,7 @@
 from flask import Flask
 from classifier import basic_classifier
-from olivia import vectorizer
-import tools
+import olivia
+import tool
 
 app = Flask('Saturn')
 
@@ -9,7 +9,6 @@ app = Flask('Saturn')
 @app.route('/')
 def index():
     return 'Home'
-
 
 
 """
@@ -21,6 +20,8 @@ Fields:	- img_url - Where the image is stored
 
 Return: - ??success or fail??
 """
+
+
 @app.route('/learn')
 def learn():
     return 'Hello World!'
@@ -29,24 +30,22 @@ def learn():
 """
 Endpoint to tell the user what class the image is guessed to belong to
 
-Access: POST
-Fields:	- img_url
+Access: GET
 
 Return:	- class - The class that the img is believed to belong to
 
 """
-@app.route('/guess')
-def guess():
+@app.route('/guess/<degas_img_name>')
+def guess(degas_img_name):
     # What we want to do:
     # They tell us an img_url = the sub image
     # We download it
     # We then convert it to an attr vec
     # we give the attr vec to the classifier, it guesses the class
     # we give the class back to the GUI
-
-    img_loc = 'Get this from the request'  # We need to extract the img_loc from the post
-    tools.download_image(img_loc, local_dest)
-    attr_vec = vectorizer.extract_attributes(local_dest)
+    local_dest = 'map.jpg'
+    tool.download(degas_img_name, local_dest)
+    attr_vec = olivia.get_attr_vec(local_dest)
     img_class = basic_classifier.guess(attr_vec)
 
     return_json = "{ \"class\":\"%s\" }" % img_class  # We need to have a method to make this nice
@@ -60,6 +59,8 @@ Access: GET
 
 Return:	- classes - An array of strings (classes)
 """
+
+
 @app.route('/features')
 def get_all_features():
     return 'null'
@@ -72,6 +73,8 @@ ACCESS: GET
 
 Return: ??success or failure??
 """
+
+
 @app.route('/features/<new_feature>')
 def add_new_feature(new_feature):
     return new_feature
