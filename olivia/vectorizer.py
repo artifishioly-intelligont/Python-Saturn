@@ -11,6 +11,8 @@ from os.path import split, splitext, isfile
 from scipy.misc import imread, imsave
 
 
+default_prm_path = os.path.expanduser('~')+'/SaturnServer/Googlenet_791113_192patch.prm'
+
 # pretty printing full ndarrays
 def ndprint(a, format_string='{0:.2f}'):
     print [format_string.format(v, i) for i, v in enumerate(a)]
@@ -26,7 +28,7 @@ class Vectorizer:
     patch_width = None
     patch_height = None
 
-    def __init__(self, prm_path='Googlenet_791113_192patch.prm', layer=-4):
+    def __init__(self, prm_path=default_prm_path, layer=-4):
         self.layer = layer
 
         gen_backend(batch_size=1, backend='cpu')
@@ -42,8 +44,9 @@ class Vectorizer:
         # initialise the model so that internally the arrays are allocated to the correct size
         self.model.initialize(model_dict['train_input_shape'])
 
-    def get_attr_vec(self, img_path):
+    def get_attribute_vector(self, img_path):
         if not image_is_local(img_path):
+            print 'File Not Found: The image at %s does not exist' % img_pathg
             return -1
 
         im = imread(img_path).astype(float)
@@ -106,9 +109,11 @@ class Vectorizer:
 
 
 if __name__ == '__main__':
-    v = Vectorizer()
-    print '\n\n----\n\n'
-    v.get_attr_vec('../images/Map-0,0.98,0.02,0.jpg')
-    print '\n\n----\n\n'
-    v.get_attr_vec('../images/Map-0,0.98,0.02,0.jpg')
+    print 'Making vectorizer, with model:'+default_prm_path
+    v = Vectorizer(layer=-1)
 
+    dest = os.path.expanduser('~')+'/SaturnServer/images/Map-0,0.98,0.02,0.jpg'
+    print 'Extracting Attributes of '+dest
+    arr = v.get_attribute_vector(dest)
+    print 'Extraction successfull'
+    print arr
