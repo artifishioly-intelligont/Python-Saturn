@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 cd ~
 mkdir SaturnServer && true
 cd SaturnServer
