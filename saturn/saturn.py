@@ -40,9 +40,9 @@ def guess(degas_img_name):
     # Find somewhere to store the image
     local_dest = tools.images.new_location()
     # Store the image there
-    tools.download(degas_img_name, local_dest)
+    #tools.download(degas_img_name, local_dest)
     # Convert that image to an attr vec
-    attr_vec = olivia.get_attr_vec(local_dest)
+    attr_vec = olivia.get_attr_vec('/home/stefan/SaturnServer/images/windmill.jpg')#local_dest)
     # guess what's in the attr vec!
     img_class = basic_classifier.guess(attr_vec)
 
@@ -79,5 +79,7 @@ def add_new_feature(new_feature):
 
 
 if __name__ == '__main__':
+    print 'Log::Saturn:: Starting server'
     app.debug = True
     app.run()
+    print 'Log::Saturn:: Server closing'
