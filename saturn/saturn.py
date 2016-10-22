@@ -16,12 +16,10 @@ The endpoint used to teach the classifier.
 
 Access: POST
 Fields:	- img_url - Where the image is stored
-	- class - What class the img really belongs to
+	    - class - What class the img really belongs to
 
 Return: - ??success or fail??
 """
-
-
 @app.route('/learn')
 def learn():
     return 'Hello World!'
@@ -42,7 +40,7 @@ def guess(degas_img_name):
     # Store the image there
     tools.download_image(degas_img_name, local_dest)
     # Convert that image to an attr vec
-    attr_vec = olivia.get_attr_vec('/home/stefan/SaturnServer/images/windmill.jpg')#local_dest)
+    attr_vec = olivia.get_attr_vec(local_dest)
     # guess what's in the attr vec!
     img_class = basic_classifier.guess(attr_vec)
 
@@ -57,8 +55,6 @@ Access: GET
 
 Return:	- classes - An array of strings (classes)
 """
-
-
 @app.route('/features')
 def get_all_features():
     return 'null'
@@ -71,8 +67,6 @@ ACCESS: GET
 
 Return: ??success or failure??
 """
-
-
 @app.route('/features/<new_feature>')
 def add_new_feature(new_feature):
     return new_feature
