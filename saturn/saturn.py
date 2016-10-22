@@ -47,6 +47,17 @@ def guess(degas_img_name):
     return_json = "{ \"class\":\"%s\" }" % img_class  #TODO: Make a JSON cnnverter (might be a flask function for it)
     return return_json
 
+"""
+An endpoint to ensure people use /guess correctly
+"""
+@app.route('/guess')
+def wrong_path_guess():
+    return "{\n" \
+           "\t\"success\":false,\n" \
+           "\t\"message\":\"Incorrect guess path. You should use:/guess/<image_name_on_degas>\",\n"\
+           "\t\"class\":null\n"\
+           "}\n"
+
 
 """
 An endpoint used to fill the class drop down in the GUI
