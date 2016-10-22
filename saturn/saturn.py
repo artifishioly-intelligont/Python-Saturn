@@ -1,5 +1,5 @@
 from flask import Flask
-from classifier import basic_classifier
+import classifier
 import olivia
 import tools
 
@@ -42,7 +42,7 @@ def guess(degas_img_name):
     # Convert that image to an attr vec
     attr_vec = olivia.get_attr_vec(local_dest)
     # guess what's in the attr vec!
-    img_class = basic_classifier.guess(attr_vec)
+    img_class = classifier.guess(attr_vec)
 
     return_json = "{ \"class\":\"%s\" }" % img_class  #TODO: Make a JSON cnnverter (might be a flask function for it)
     return return_json
