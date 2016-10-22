@@ -29,3 +29,6 @@ class ImageHandler:
 
 
 
+ih = ImageHandler('some/fake/path')
+
+ih.get_image_dir()

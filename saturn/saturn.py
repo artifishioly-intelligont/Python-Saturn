@@ -40,7 +40,7 @@ def guess(degas_img_name):
     # Find somewhere to store the image
     local_dest = tools.images.new_location()
     # Store the image there
-    #tools.download_image(degas_img_name, local_dest)
+    tools.download_image(degas_img_name, local_dest)
     # Convert that image to an attr vec
     attr_vec = olivia.get_attr_vec('/home/stefan/SaturnServer/images/windmill.jpg')#local_dest)
     # guess what's in the attr vec!

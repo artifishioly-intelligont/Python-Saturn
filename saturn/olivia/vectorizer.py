@@ -29,11 +29,16 @@ class Vectorizer:
     patch_height = None
 
     def __init__(self, prm_path=default_prm_path, layer=-4):
+        print 'Log::Vectorizer:: Initialising Vectorizer'
         self.layer = layer
 
+        print 'Log::Vectorizer:: Generating backend'
         gen_backend(batch_size=1, backend='cpu')
 
+        print 'Log::Vectorizer:: Loading model from %s' % prm_path
         model_dict = load_obj(prm_path)
+
+        print 'Log::Vectorizer:: Generating model with loaded file'
         self.model = Model(model_dict)
 
         # now we are going to extract the middle patch from the image,
@@ -41,12 +46,14 @@ class Vectorizer:
         self.patch_height = model_dict['train_input_shape'][1]
         self.patch_width = model_dict['train_input_shape'][2]
 
+        print 'Log::Vectorizer:: Initialising Model'
         # initialise the model so that internally the arrays are allocated to the correct size
         self.model.initialize(model_dict['train_input_shape'])
+        print 'Log::Vectorizer:: DONE!'
 
     def get_attribute_vector(self, img_path):
         if not image_is_local(img_path):
-            print 'File Not Found: The image at %s does not exist' % img_pathg
+            print 'Error::Vectorizer:: File Not Found: The image at %s does not exist' % img_path
             return -1
 
         im = imread(img_path).astype(float)
@@ -106,14 +113,3 @@ class Vectorizer:
         patch_array = patch.transpose((2, 0, 1)).flatten()
 
         return patch_array
-
-
-if __name__ == '__main__':
-    print 'Making vectorizer, with model:'+default_prm_path
-    v = Vectorizer(layer=-1)
-
-    dest = os.path.expanduser('~')+'/SaturnServer/images/Map-0,0.98,0.02,0.jpg'
-    print 'Extracting Attributes of '+dest
-    arr = v.get_attribute_vector(dest)
-    print 'Extraction successfull'
-    print arr
