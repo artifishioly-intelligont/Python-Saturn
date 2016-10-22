@@ -1,4 +1,6 @@
 from flask import Flask
+import json
+
 import classifier
 import olivia
 import tools
@@ -8,7 +10,8 @@ app = Flask('Saturn')
 
 @app.route('/')
 def index():
-    return 'Home'
+    return 'Endpoints:\n' \
+           '\t'
 
 
 """
@@ -37,26 +40,42 @@ Return:	- class - The class that the img is believed to belong to
 def guess(degas_img_name):
     # Find somewhere to store the image
     local_dest = tools.images.new_location()
-    # Store the image there
-    tools.download_image(degas_img_name, local_dest)
+
+    # Store the image at local_dest
+    try:
+        tools.download_image(degas_img_name, local_dest)
+    except Exception as ex:
+        print 'Error::Saturn:: ' + ex.message
+
+        data = {}
+        data['success'] = False
+        data['message'] = ex.message
+        data['class'] = None
+
+        return  json.dumps(data)
+
     # Convert that image to an attr vec
     attr_vec = olivia.get_attr_vec(local_dest)
     # guess what's in the attr vec!
     img_class = classifier.guess(attr_vec)
 
-    return_json = "{ \"class\":\"%s\" }" % img_class  #TODO: Make a JSON cnnverter (might be a flask function for it)
-    return return_json
+
+    data = {}
+    data['success'] = True
+    data['class'] = img_class
+
+    return json.dumps(data)
 
 """
 An endpoint to ensure people use /guess correctly
 """
 @app.route('/guess')
 def wrong_path_guess():
-    return "{\n" \
-           "\t\"success\":false,\n" \
-           "\t\"message\":\"Incorrect guess path. You should use:/guess/<image_name_on_degas>\",\n"\
-           "\t\"class\":null\n"\
-           "}\n"
+    data = {}
+    data['success'] = False
+    data['message'] = 'Incorrect guess path usage. You should use: \'{domain}/guess/{dagus_img_url}\''
+    data['class'] = None
+    return json.dumps(data)
 
 
 """
