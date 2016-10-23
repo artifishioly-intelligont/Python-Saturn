@@ -23,6 +23,17 @@ class FeatureTable:
 
         return cls
 
+    def find_all_feature(self):
+        store_features = []
+        count = 0
+
+        if len(self.feature_dictionary) > 0:
+            for k,v in self.feature_dictionary.items():
+                store_features.insert(count, v)
+                count += 1
+
+        return store_features
+
     def add_feature(self, feat_name):
         n = len(self.feature_dictionary)
 
@@ -32,7 +43,6 @@ class FeatureTable:
         else:
             self.feature_dictionary[(n + 1) * self.increment_number] = feat_name
             print 'added'
-        return
 
 if __name__ == "__main__":
         
