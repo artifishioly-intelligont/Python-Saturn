@@ -8,6 +8,13 @@ class Table:
     feature_dict = {3 : [1, 5.6], 7 : [5.6, 7.6], 8 : [7.6, 10]}
     feature_range = [[1, 5.6], [5.6, 7.6], [7.6, 10]]
 
+    f = {}
+    f[1] = 'Formaula 1'
+    f[200] = 'pond'
+    print f[1]
+    print f[1000000]
+
+
     feature_key = [3, 7, 8]
     feature_table = {3 : 'pond', 7 : 'car' , 8 : 'tree'}
 
