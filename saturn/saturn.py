@@ -4,9 +4,12 @@ import json
 import classifier
 import olivia
 import tools
+from classifier import table
 
 app = Flask('Saturn')
 
+#creating table
+tab = table.FeatureTable(1, 100);
 
 @app.route('/')
 def index():
@@ -87,7 +90,17 @@ Return:	- classes - An array of strings (classes)
 """
 @app.route('/features')
 def get_all_features():
-    return 'null'
+    feature_name = tab.find_all_feature()
+    data = {}
+
+    if len(feature_name) > 0:
+        data['success'] = True
+        data['feature'] = feature_name
+    else:
+        data['success'] = False
+        data['feature'] = 'No Feature Recorded.'
+
+    return json.dumps(data)
 
 
 """
