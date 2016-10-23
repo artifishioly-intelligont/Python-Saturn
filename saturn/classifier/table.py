@@ -42,36 +42,95 @@ class Table:
         value = round(value_dbl)
 
         if isinstance(name_str, str) and isinstance(value, float):
-            self.update(name_str, value)
+            self.update_range(name_str, value)
+            self.update_all()
         else:
             print 'Unable to update'
         return
 
     # updates the list and dictionary
-    def update(self, name):
-        store_list = []
+    # value as a key
+    def update_range(self, name, value):
+        store_key = []
         count = 0
 
-        div = self.feature_table.i
+        key1 = 0
+        key2 = 0
 
-        if len(store_list) == 2:
-            for ran in store_list:
+        for k, v in self.feature_dict.items():
+            store_key.insert(count, k)
+            count += 1
 
+        store_key.sort()
+
+        for key in store_key:
+            if(value > key):
+                key1 = key
+            else:
+                key2 = key
+                break
+
+        if(len(store_key) <= 1):
+            range_first_value = (self.range_start_value + value) / 2
+            range_second_value = (self.range_end_value + value) / 2
+            new_range = [range_first_value, range_second_value]
+
+            self.feature_dict.setdefault(value, new_range)
+            self.feature_range.insert(0, new_range)
+            self.feature_key.insert(0, value)
         else:
-            self.
+            if(key1 == 0 or key2 == 0):
+                if(key1 == 0):
+                    range_first_value = (self.range_start_value + value) / 2
+                    range_second_value = (key2 + value) / 2
+                    new_range = [range_first_value, range_second_value]
+                    higher_range_value = [range_second_value, self.feature_dict.get(key2)[1]]
+
+
+                    self.feature_dict[key2] = higher_range_value
+                    self.feature_dict.setdefault(value, new_range)
+
+                    self.update_all_list(-1, value, new_range)
+                else:
+                    range_first_value = (key1 + value) / 2
+                    range_second_value = (self.range_end_value + value) / 2
+                    new_range = [range_first_value, range_second_value]
+                    lower_range_value = [self.feature_dict.get(key1)[0], range_second_value]
+
+
+                    self.feature_dict[key1] = lower_range_value
+                    self.feature_dict.setdefault(value, new_range)
+
+                    self.update_all_list((store_key.index(key1) + 1), value, new_range)
+            else:
+                range_first_value = (key1 + value) / 2
+                range_second_value = (key2 + value) / 2
+                new_range = [range_first_value, range_second_value]
+
+                lower_range_value = [self.feature_dict.get(key1)[0], range_first_value]
+                higher_range_value = [range_second_value, self.feature_dict.get(key2)[1]]
+
+                self.feature_dict[key1] = lower_range_value
+                self.feature_dict[key2] = higher_range_value
+                self.feature_dict.setdefault(value, new_range)
+
+                # updating all the remaining list
+                self.update_all_list_((store_key.index(key1) + 1), value, new_range)
+
+        #updating feature table
+        self.feature_table.setdefault(value, name)
 
         return
 
-    def update_feature_list(self):
+    def update_all_list(self, index1, value, new_range):
+        if(index1 == -1):
+            self.feature_range.insert(0, new_range)
+            self.feature_key(0, value)
+        else:
+            self.feature_range.insert(index1, new_range)
+            self.feature_key.insert(index1, value)
 
 
-
-    def test(self, dict):
-        count = 0
-
-        dvi = dict.itervalues()
-        while(count < len(dict)):
-            dvi.next()
 
 
 
