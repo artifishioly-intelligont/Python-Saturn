@@ -90,18 +90,17 @@ Return:	- classes - An array of strings (classes)
 """
 @app.route('/features')
 def get_all_features():
-    feature_name = tab.find_all_feature()
+    features_name_list = tab.find_all_features()
     data = {}
 
-    if len(feature_name) > 0:
+    if len(features_name_list) > 0:
         data['success'] = True
-        data['feature'] = feature_name
+        data['feature'] = features_name_list
     else:
         data['success'] = False
         data['feature'] = 'No Feature Recorded.'
 
     return json.dumps(data)
-
 
 """
 An endpoint to add a new feature to the list
@@ -112,8 +111,17 @@ Return: ??success or failure??
 """
 @app.route('/features/<new_feature>')
 def add_new_feature(new_feature):
-    return new_feature
+    msg = tab.add_feature(new_feature)
+    data = {}
 
+    if msg:
+        data['success'] = True
+        data['feature'] = new_feature + ' recorded'
+    else:
+        data['success'] = False
+        data['feature'] = 'Feature already exit'
+
+    return json.dumps(data)
 
 if __name__ == '__main__':
     print 'Log::Saturn:: Starting server'
