@@ -22,7 +22,7 @@ class FeatureTable:
         if self.feature_dictionary.has_key(id):
             cls = self.feature_dictionary.get(id)
         else:
-            cls = 'No match'
+            cls = None
 
         return cls
 
