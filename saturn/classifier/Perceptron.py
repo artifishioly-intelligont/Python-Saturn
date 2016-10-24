@@ -52,9 +52,8 @@ if __name__ == '__main__':
 
     # Generate input data
     X = []
-    x = random.sample(range(-20, 20), input_length)
     for i in range(number_of_training_vectors):
-        #x = random.sample(range(-20, 20), input_length)
+        x = random.sample(range(-20, 20), input_length)
         X.append(x)
 
     # Generate true/actual value for each input vector
@@ -80,8 +79,14 @@ if __name__ == '__main__':
     print '--------------'
     print 'errors:'+str(learner.errors)
 
-    import plotly
-    import plotly.graph_objs as go
+    try:
+        import plotly
+        import plotly.graph_objs as go
+    except ImportError as ie:
+        print 'You have not installed \'plotly\', a graphing tool. Hence a visualisation of the error (as %) cannot be shown'
+        print 'Run:'
+        print '     pip install plotly'
+        print 'Then re-run this script'
 
     xs = range(0,len(learner.errors))
     ys = learner.errors
@@ -89,3 +94,5 @@ if __name__ == '__main__':
     trace = go.Scatter(x = xs, y=ys)
     plotly.offline.plot([trace])
 
+    import os
+    os.remove('temp-plot.html')
