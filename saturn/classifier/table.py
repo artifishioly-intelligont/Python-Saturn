@@ -15,7 +15,10 @@ class FeatureTable:
                 cls = 'No match'
         return cls
 
-    def find_name(self, id):
+    def find_name(self, dbl_id):
+
+        id = min(self.feature_dictionary, key=lambda x: abs(x - dbl_id))
+
         if self.feature_dictionary.has_key(id):
             cls = self.feature_dictionary.get(id)
         else:
@@ -23,7 +26,7 @@ class FeatureTable:
 
         return cls
 
-    def find_all_feature(self):
+    def find_all_features(self):
         store_features = []
         count = 0
 
@@ -36,13 +39,17 @@ class FeatureTable:
 
     def add_feature(self, feat_name):
         n = len(self.feature_dictionary)
+        msg = True
 
         if n == 0:
             self.feature_dictionary[self.start * self.increment_number] = feat_name
             print 'added'
+            return msg
         else:
             self.feature_dictionary[(n + 1) * self.increment_number] = feat_name
             print 'added'
+            msg = False
+            return msg
 
 if __name__ == "__main__":
         
@@ -56,3 +63,5 @@ if __name__ == "__main__":
     print t.find_name(100)
     print t.find_name(200)
     print t.find_name(300)
+
+    print t.find_name(230)
