@@ -61,7 +61,7 @@ def guess(degas_img_name):
     attr_vec = olivia.get_attr_vec(local_dest)
     # guess what's in the attr vec!
     img_class = classifier.guess(attr_vec)
-
+    
 
     data = {}
     data['success'] = True

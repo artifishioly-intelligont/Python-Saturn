@@ -1,7 +1,7 @@
 import Perceptron, table as Table
 
-perceptron = Perceptron.Perceptron(1000)
-table = Table.FeatureTable(0, 100)
+perceptron = Perceptron.Perceptron(1024)
+tab = Table.FeatureTable(0, 100)
 
 def guess(attr_vec):
     """
@@ -12,8 +12,11 @@ def guess(attr_vec):
     :param attr_vec: The long list of numerical representations of the attributes extracted (by olivia module) of a sub-image
     :return: The name of the class the classifier believes the sub-image belongs to
     """
+    print 'Debug::Classifier:: %s' % str(attr_vec)
     raw_pred = perceptron.predict(attr_vec)
-    pred_class = table.find_name(raw_pred)
+    pred_class = tab.find_name(raw_pred)
+
+    print 'Log::Classifier:: predicts the class %s' % pred_class
     return pred_class
 
 def learn(attr_vec, true_class):
@@ -25,6 +28,8 @@ def learn(attr_vec, true_class):
     :return: None
     """
     raw_pred = perceptron.predict(attr_vec)
-    pred_class = table.find_name(raw_pred)
+    pred_class = tab.find_name(raw_pred)
+    print 'Log::Classifier:: predicts the class %s' % pred_class
+    print 'Log::Classifier:: learning'
 
     perceptron.feedback(true_class, pred_class, attr_vec)

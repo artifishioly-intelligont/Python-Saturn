@@ -18,9 +18,7 @@ class Perceptron:
         :return:
         """
         if len(self.weights) != len(input_vector):
-            print len(self.weights)
-            print len(input_vector)
-            raise Exception('Input vector is not of the same length as the weights')
+            raise Exception('Input vector (length: %d)is not of the same length as the weights (length: %d)' % (len(input_vector),len(self.weights)))
 
         total = 0
         for index in range(0,len(input_vector)):
