@@ -30,10 +30,10 @@ class Perceptron:
 
     def feedback(self, true_value, predicted_value, input_vector):
         error = true_value - predicted_value
-        self.errors.append(abs(error))
+        self.errors.append(float(abs(true_value)) / abs(error))
         print 'Debug::Perception:: Error = %f' % error
         lambdaDeltaE = list(input_vector)
-        for i in range(0,len(input_vector)):
+        for i in range(0, len(input_vector)):
             lambdaDeltaE[i] *= self.learning_rate*2*error
 
         for i in range(0,len(input_vector)):
@@ -52,8 +52,9 @@ if __name__ == '__main__':
 
     # Generate input data
     X = []
+    x = random.sample(range(-20, 20), input_length)
     for i in range(number_of_training_vectors):
-        x = random.sample(range(-20, 20), input_length)
+        #x = random.sample(range(-20, 20), input_length)
         X.append(x)
 
     # Generate true/actual value for each input vector
