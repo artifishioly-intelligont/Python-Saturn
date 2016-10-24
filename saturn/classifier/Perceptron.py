@@ -91,6 +91,3 @@ if __name__ == '__main__':
 
     trace = go.Scatter(x = xs, y=ys)
     plotly.offline.plot([trace])
-
-    import os
-    os.remove('temp-plot.html')
