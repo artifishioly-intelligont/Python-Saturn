@@ -46,10 +46,15 @@ class FeatureTable:
             print 'added'
             return msg
         else:
-            self.feature_dictionary[(n + 1) * self.increment_number] = feat_name
-            print 'added'
-            msg = False
-            return msg
+            for k, v in self.feature_dictionary.items():
+                if v == feat_name:
+                    print 'Feature already exist'
+                    msg = False
+                    break
+            if msg:
+                self.feature_dictionary[(n + 1) * self.increment_number] = feat_name
+                print 'added'
+                return msg
 
 if __name__ == "__main__":
         
