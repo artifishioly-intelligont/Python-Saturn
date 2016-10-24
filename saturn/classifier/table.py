@@ -31,9 +31,7 @@ class FeatureTable:
         count = 0
 
         if len(self.feature_dictionary) > 0:
-            for k,v in self.feature_dictionary.items():
-                store_features.insert(count, v)
-                count += 1
+            store_features = self.feature_dictionary.values()
 
         return store_features
 
