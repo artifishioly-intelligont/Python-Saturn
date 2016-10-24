@@ -7,12 +7,12 @@ class FeatureTable:
         self.increment_number = increment_number
 
     def find_id(self, feature_name):
+        cls = None
         for k, v in self.feature_dictionary.items():
             if feature_name == v:
                 cls = k
                 break
-            else:
-                cls = 'No match'
+
         return cls
 
     def find_name(self, dbl_id):
@@ -37,24 +37,23 @@ class FeatureTable:
 
         return store_features
 
-    def add_feature(self, feat_name):
+    def add_feature(self, feature_name):
         n = len(self.feature_dictionary)
         msg = True
 
         if n == 0:
-            self.feature_dictionary[self.start * self.increment_number] = feat_name
-            print 'added'
+            self.feature_dictionary[self.start * self.increment_number] = feature_name
+            print 'Added'
             return msg
         else:
-            for k, v in self.feature_dictionary.items():
-                if v == feat_name:
-                    print 'Feature already exist'
-                    msg = False
-                    break
-            if msg:
-                self.feature_dictionary[(n + 1) * self.increment_number] = feat_name
-                print 'added'
-                return msg
+            msg = feature_name in self.feature_dictionary.values()
+
+            if msg != True:
+                self.feature_dictionary[(n + 1) * self.increment_number] = feature_name
+                print 'Added'
+                msg = True
+
+            return msg
 
 if __name__ == "__main__":
         
