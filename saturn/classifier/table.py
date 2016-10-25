@@ -1,6 +1,6 @@
 
 class FeatureTable:
-    feature_dictionary = {}
+    feature_dictionary = {100 : 'Pond', 200 : 'Tree', 300 : 'Park', 400 : 'Pathway'}
 
     def __init__(self, start, increment_number):
         self.start = start
