@@ -4,12 +4,11 @@ import json
 import classifier
 import olivia
 import tools
-from classifier import table
 
 app = Flask('Saturn')
 
 #creating table
-tab = table.FeatureTable(1, 100);
+tab = classifier.tab
 
 @app.route('/')
 def index():
@@ -64,7 +63,11 @@ def guess(degas_img_name):
 
 
     data = {}
-    data['success'] = True
+    if img_class == None:
+        data['success'] = False
+        data['message'] = 'There are no classes in the system. Go to {domain}/features/{new_feature_name} to add some.'
+    else:
+        data['success'] = True
     data['class'] = img_class
 
     return json.dumps(data)

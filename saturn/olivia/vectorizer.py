@@ -13,14 +13,8 @@ from scipy.misc import imread, imsave
 
 default_prm_path = os.path.expanduser('~')+'/SaturnServer/Googlenet_791113_192patch.prm'
 
-# pretty printing full ndarrays
-def ndprint(a, format_string='{0:.2f}'):
-    print [format_string.format(v, i) for i, v in enumerate(a)]
-
-
 def image_is_local(img_path):
     return os.path.isfile(img_path)
-
 
 class Vectorizer:
     model = None
@@ -31,6 +25,9 @@ class Vectorizer:
     def __init__(self, prm_path=default_prm_path, layer=-4):
         print 'Log::Vectorizer:: Initialising Vectorizer'
         self.layer = layer
+
+        if not os.path.isfile(prm_path):
+            raise Exception('FileNotFound: Cannot find the file %s' % prm_path)
 
         print 'Log::Vectorizer:: Generating backend'
         gen_backend(batch_size=1, backend='cpu')
@@ -83,7 +80,7 @@ class Vectorizer:
         # Note 2: in the returned array there will be one column for each item
         # in the batch; as we only put data in the first item, we only want the
         # first column
-        ndprint(self.model.layers.layers[0].layers[self.layer].outputs.asnumpyarray()[:, 0])
+        return self.model.layers.layers[0].layers[self.layer].outputs.asnumpyarray()[:, 0]
 
     # Expects 256x256
     def patch_image(self, im):
