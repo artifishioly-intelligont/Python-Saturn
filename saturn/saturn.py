@@ -12,8 +12,13 @@ tab = classifier.tab
 
 @app.route('/')
 def index():
-    return 'Endpoints:\n' \
-           '\t'
+    print 'Log::Saturn::Message Recieved::/'
+    return 'Endpoints: <br>' \
+           '\t/ -- List All Endpoints<br>' \
+           '\t/guess/{degas_image_loc} -- Determine which feature the image is<br>' \
+           '\t/learn/ -- POST a batch of urls to images and the feature type, in order to teach the system<br>' \
+           '\t/features/ -- List All    features<br>' \
+           '\t/features/{new_feature} -- Add the new feature<br>'
 
 
 """
@@ -40,6 +45,8 @@ Return:	- class - The class that the img is believed to belong to
 """
 @app.route('/guess/<degas_img_name>')
 def guess(degas_img_name):
+    print 'Log::Saturn::Message Recieved::/guess/' + degas_img_name
+
     # Find somewhere to store the image
     local_dest = tools.images.new_location()
 
@@ -98,10 +105,10 @@ def get_all_features():
 
     if len(features_name_list) > 0:
         data['success'] = True
-        data['feature'] = features_name_list
+        data['features'] = features_name_list
     else:
         data['success'] = False
-        data['feature'] = 'No Feature Recorded.'
+        data['features'] = 'No Feature Recorded.'
 
     return json.dumps(data)
 

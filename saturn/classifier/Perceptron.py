@@ -43,7 +43,7 @@ if __name__ == '__main__':
     # Lets train a perceptron to learn the function: f_true(x1,x2,x3,x4,x5,x6) = 10*x1 + 100*x3 + 1000*x5
     #   therefore we have an input vector of 6 elements
     input_length = 6
-    number_of_training_vectors = 500
+    number_of_training_vectors = 50
 
     def f_true(x):
         return 10 * x[1] + 100 * x[3] + 1000 * x[5]
