@@ -32,6 +32,7 @@ Return: - ??success or fail??
 """
 @app.route('/learn')
 def learn():
+    print 'Log::Saturn::Message Recieved::/learn/'
     return 'Hello World!'
 
 
@@ -84,6 +85,7 @@ An endpoint to ensure people use /guess correctly
 """
 @app.route('/guess')
 def wrong_path_guess():
+    print 'Log::Saturn::Message Recieved::/guess/'
     data = {}
     data['success'] = False
     data['message'] = 'Incorrect guess path usage. You should use: \'{domain}/guess/{dagus_img_url}\''
@@ -100,6 +102,7 @@ Return:	- classes - An array of strings (classes)
 """
 @app.route('/features')
 def get_all_features():
+    print 'Log::Saturn::Message Recieved::/features/'
     features_name_list = tab.find_all_features()
     data = {}
 
@@ -121,6 +124,7 @@ Return: ??success or failure??
 """
 @app.route('/features/<new_feature>')
 def add_new_feature(new_feature):
+    print 'Log::Saturn::Message Recieved::/features/<new_feature>'
     msg = tab.add_feature(new_feature)
     data = {}
 
