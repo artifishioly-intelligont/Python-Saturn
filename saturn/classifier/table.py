@@ -1,10 +1,11 @@
 
 class FeatureTable:
-    feature_dictionary = {100 : 'Pond', 200 : 'Tree', 300 : 'Park', 400 : 'Pathway'}
+    feature_dictionary = None
 
-    def __init__(self, start, increment_number):
+    def __init__(self, start, increment_number, initital_entries):
         self.start = start
         self.increment_number = increment_number
+        self.feature_dictionary = initital_entries
 
     def find_id(self, feature_name):
         cls = None
