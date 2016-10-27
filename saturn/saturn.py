@@ -33,7 +33,25 @@ Return: - ??success or fail??
 @app.route('/learn')
 def learn():
     print 'Log::Saturn::Message Recieved::/learn/'
-    return 'Hello World!'
+
+    # Stub values
+    urls = ['windmill.jpg','windmill.jpg']
+    true_class = classifier.tab.find_all_features()[0]
+
+    local_urls = [None, None]
+
+    # accept urls
+    # download all images -- skip the ones that fail
+    # apply learn to each of them
+    for feature in local_urls:
+        attr_vec = olivia.get_attr_vec(feature)
+        classifier.learn(attr_vec, true_class)
+
+    data = {}
+    data['success'] = True
+    data['failed_images'] = None
+
+    return json.dumps(data)
 
 
 """
