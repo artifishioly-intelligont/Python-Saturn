@@ -1,7 +1,5 @@
 import unittest
-import classifier
-#import olivia
-#import tools
+import __init__.py as classifier
 
 class TableUnitTest(unittest.TestCase):
 
