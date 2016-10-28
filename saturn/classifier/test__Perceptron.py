@@ -97,16 +97,6 @@ class PerceptronTest(unittest.TestCase):
             avg_error = sum(per.errors[i:i+entries_per_bar])/float(entries_per_bar)
             bars.append(avg_error)
 
-        xs = range(0, len(per.errors))
-        ys = per.errors
-
-        import plotly
-        import plotly.graph_objs as go
-
-        trace = go.Scatter(x=xs, y=ys)
-        plotly.offline.plot([trace])
-
-        print bars
         #
         # THEN the error within each group is less than the previous
         for i in range(1,len(bars)):
