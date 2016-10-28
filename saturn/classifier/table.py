@@ -1,5 +1,6 @@
 
 class FeatureTable:
+
     feature_dictionary = None
 
     def __init__(self, start, increment_number, initital_entries):
@@ -7,10 +8,11 @@ class FeatureTable:
         self.increment_number = increment_number
         self.feature_dictionary = initital_entries
 
+
     def find_id(self, feature_name):
         cls = None
         for k, v in self.feature_dictionary.items():
-            if feature_name == v:
+            if feature_name.upper() == v:
                 cls = k
                 break
 
@@ -40,31 +42,31 @@ class FeatureTable:
         n = len(self.feature_dictionary)
         msg = True
 
-        if n == 0:
-            self.feature_dictionary[self.start * self.increment_number] = feature_name
+        msg = feature_name.upper() in self.feature_dictionary.values()
+
+        if not msg:
+            self.feature_dictionary[(n + 1) * self.increment_number] = feature_name.upper()
             print 'Added'
-            return msg
+            msg = True
         else:
-            msg = feature_name in self.feature_dictionary.values()
+            print 'Already Exist'
+            msg = False
 
-            if msg != True:
-                self.feature_dictionary[(n + 1) * self.increment_number] = feature_name
-                print 'Added'
-                msg = True
-
-            return msg
+        return msg
 
 if __name__ == "__main__":
-        
+
     t = FeatureTable(1, 100)
 
     t.add_feature('pond')
-    t.add_feature('tree')
-    t.add_feature('chair')
+    t.add_feature('pen')
+    t.add_feature('chalk')
 
-    print t.find_id('pond')
+    print t.find_all_features()
+
+    print t.find_id('pen')
     print t.find_name(100)
     print t.find_name(200)
-    print t.find_name(300)
+    print t.find_name(600)
 
     print t.find_name(230)
