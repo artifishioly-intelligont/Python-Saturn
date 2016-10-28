@@ -18,7 +18,7 @@
 #	 0 - Every test passed (or no tests found)
 #	-1 - At least one test failed (check ./failed_tests.log to find which ones)
 #
-
+clear
 echo '=============================================================='
 echo '	                  run_tests.sh'
 echo '=============================================================='
@@ -37,9 +37,9 @@ fi
 
 echo 'Tests found:'
 for test in $tests; do 
-	echo $test
+	echo -e "\e[34m${test}"
 done
-echo; echo;
+echo -e "\e[39m"; echo;
 
 
 echo '--------------------------------------------------------------'
@@ -68,31 +68,35 @@ for test in $tests; do
 	fi	
 done
 
-
+echo -e "\e[39m"
 echo '--------------------------------------------------------------'
 echo '                 Results'
 echo '--------------------------------------------------------------'
-echo ' Passed Tests:'
-cat ./passed_tests.log
-echo;
-echo ' Failed Tests:'
-cat ./failed_tests.log
-
+echo " Passed Tests:"
+for test in $(cat ./passed_tests.log); do
+    echo -e "\e[32m${test}"
+done
+echo -e "\e[39m"
+echo " Failed Tests:"
+for test in $(cat ./failed_tests.log); do
+    echo -e "\e[31m${test}"
+done
+echo -e "\e[39m"
 # If any tests failed then this script will exit with a fail exit code
 #	a pass code is exit code 0
 #	a fail code is any non-zero number 
 if [ -s ./failed_tests.log ];then
 	echo;
-	echo '=============================================================='
-	echo '	    		    FAILED'
-	echo '=============================================================='
+	echo -e '=============================================================='
+	echo -e "	    		    \e[31mFAILED\e[39m"
+	echo -e '=============================================================='
 	echo 'At least one failed test, entire test failed'
 	exit -1
 else
 	
-	echo '=============================================================='
-	echo '	    		    PASSED'
-	echo '=============================================================='
+	echo -e '\e[32m=============================================================='
+	echo -e "	    		    PASSED"
+	echo -e '==============================================================\e[39m'
 	echo 'All tests passed'
 fi
 
