@@ -181,6 +181,5 @@ def add_new_feature(new_feature):
 
 if __name__ == '__main__':
     print 'Log::Saturn:: Starting server'
-    app.debug = True
     app.run()
     print 'Log::Saturn:: Server closing'
