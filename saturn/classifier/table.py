@@ -1,10 +1,12 @@
 
 class FeatureTable:
-    feature_dictionary = {100 : 'POND', 200 : 'TREE', 300 : 'PARK', 400 : 'PATHWAY'}
 
-    def __init__(self, start, increment_number):
+    feature_dictionary = None
+
+    def __init__(self, start, increment_number, initital_entries):
         self.start = start
         self.increment_number = increment_number
+        self.feature_dictionary = initital_entries
 
 
     def find_id(self, feature_name):
@@ -33,8 +35,6 @@ class FeatureTable:
 
         if len(self.feature_dictionary) > 0:
             store_features = self.feature_dictionary.values()
-
-        #print 'lentths %i ' % len(store_features)
 
         return store_features
 

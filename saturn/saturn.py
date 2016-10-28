@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request
 import json
 
 import classifier
@@ -25,7 +25,7 @@ def index():
 The endpoint used to teach the classifier.
 
 Access: POST
-Fields:	- img_url - Where the image is stored
+Fields:	- img_names - Where the image is stored
 	    - class - What class the img really belongs to
 
 Return: - ??success or fail??
@@ -35,21 +35,45 @@ def learn():
     print 'Log::Saturn::Message Recieved::/learn/'
 
     # Stub values
-    urls = ['windmill.jpg','windmill.jpg']
-    true_class = classifier.tab.find_all_features()[0]
+    if request.method == 'POST':
+        true_class = request.form['theme']
+        degas_urls = request.form['urls']
+
+    # De-comment for manual testing
+    # urls = ['windmill.jpg','windmill.jpg']
+    # true_class = classifier.tab.find_all_features()[0]
+
+    failed_urls = []
+    fail_messages = []
+    local_urls = []
+    for image_name in degas_urls:
+        local_dest = tools.images.new_location()
+        try:
+            tools.download_image(image_name, local_dest)
+            local_urls.append(local_dest)
+        except Exception as ex:
+            print 'Error::Saturn:: ' + ex.message
+            failed_urls.append(image_name)
+            fail_messages.append(ex.message)
 
     local_urls = [None, None]
 
-    # accept urls
-    # download all images -- skip the ones that fail
-    # apply learn to each of them
+    # If all downloads failed
+    if len(local_urls) == len(failed_urls):
+        data = {}
+        data['success'] = False
+        data['failed_images'] = failed_urls
+        data['fail_messages'] = fail_messages
+        return json.dumps(data)
+
     for feature in local_urls:
         attr_vec = olivia.get_attr_vec(feature)
         classifier.learn(attr_vec, true_class)
 
     data = {}
     data['success'] = True
-    data['failed_images'] = None
+    data['failed_images'] = failed_urls
+    data['fail_messages'] = fail_messages
 
     return json.dumps(data)
 
