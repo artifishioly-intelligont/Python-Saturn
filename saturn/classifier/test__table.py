@@ -1,5 +1,5 @@
 import unittest
-import __init__.py as classifier
+import __init__ as classifier
 
 class TableUnitTest(unittest.TestCase):
 
