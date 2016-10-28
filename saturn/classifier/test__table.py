@@ -1,7 +1,5 @@
 import unittest
-import classifier
-#import olivia
-#import tools
+import __init__ as classifier
 
 class TableUnitTest(unittest.TestCase):
 
@@ -15,5 +13,4 @@ class TableUnitTest(unittest.TestCase):
         self.assertEqual(len(self.tab.find_all_features()), 5)
 
 if __name__ == "__main__":
-    suite = unittest.TestLoader().loadTestsFromTestCase(TableUnitTest)
-    unittest.TextTestRunner(verbosity=2).run(suite)
+    unittest.main()

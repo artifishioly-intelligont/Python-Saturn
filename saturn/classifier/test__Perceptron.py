@@ -90,7 +90,7 @@ class PerceptronTest(unittest.TestCase):
             per.feedback(y, p, x)
 
         # AND grouping the error (by iteration number) and find the average of each error
-        no_of_bars = number_of_training_vectors / 10
+        no_of_bars = number_of_training_vectors / 25
         entries_per_bar = number_of_training_vectors / no_of_bars
         bars = []
         for i in range(0,number_of_training_vectors-entries_per_bar,entries_per_bar):

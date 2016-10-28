@@ -29,7 +29,8 @@ def learn(attr_vec, true_class):
     """
     raw_pred_id = perceptron.predict(attr_vec)
     true_class_id = tab.find_id(true_class)
-    print 'Log::Classifier:: predicts the class %s' % tab.find_name(raw_pred_id)
+    print 'Log::Classifier:: predicts the raw_id %f (which converts to: %s) when it should predict %s'\
+          % (raw_pred_id, tab.find_name(raw_pred_id), true_class)
     print 'Log::Classifier:: learning'
 
     perceptron.feedback(true_class_id, raw_pred_id, attr_vec)
