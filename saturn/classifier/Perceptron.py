@@ -29,7 +29,7 @@ class Perceptron:
     def feedback(self, true_value, predicted_value, input_vector):
         error = true_value - predicted_value
         self.errors.append(float(abs(true_value)) / abs(error))
-        print 'Debug::Perception:: Error = %f' % error
+
         lambdaDeltaE = list(input_vector)
         for i in range(0, len(input_vector)):
             lambdaDeltaE[i] *= self.learning_rate*2*error
