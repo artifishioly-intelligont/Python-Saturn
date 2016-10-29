@@ -87,9 +87,9 @@ echo -e "\e[39m"
 #	a fail code is any non-zero number 
 if [ -s ./failed_tests.log ];then
 	echo;
-	echo -e '=============================================================='
-	echo -e "	    		    \e[31mFAILED\e[39m"
-	echo -e '=============================================================='
+	echo -e '\e[31m=============================================================='
+	echo -e "	    		    FAILED"
+	echo -e '==============================================================\e[39m'
 	echo 'At least one failed test, entire test failed'
 	exit -1
 else

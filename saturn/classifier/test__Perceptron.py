@@ -1,4 +1,5 @@
-import unittest, random
+import unittest
+import random
 from Perceptron import Perceptron
 
 input_length = 6
@@ -6,6 +7,9 @@ number_of_training_vectors = 50
 
 
 class PerceptronTest(unittest.TestCase):
+    def setUp(self):
+        # GIVEN a perceptron
+        self.per = Perceptron(input_length)
 
     def test_weightsDontChangeWithPredict(self):
         """
@@ -13,22 +17,19 @@ class PerceptronTest(unittest.TestCase):
 
             Method Under Test: Perceptron.Perceptron.predict()
         """
-        # GIVEN a perceptron
-        per = Perceptron(input_length)
-
         # AND the it's weights
-        before_weights = per.weights[:]
+        before_weights = self.per.weights[:]
 
         # AND a list of attributes
-        list = [0.5]*input_length
+        attr_vec = [0.5] * input_length
 
         #
         # WHEN predicting the class for the list of attributes
-        per.predict(list)
+        self.per.predict(attr_vec)
 
         #
         # THEN the weights do not change
-        after_weights = per.weights[:]
+        after_weights = self.per.weights[:]
         self.assertEqual(before_weights, after_weights, 'The weights should not change after predicting a class')
 
     def test_weightsDoChangeWithFeedback(self):
@@ -37,29 +38,28 @@ class PerceptronTest(unittest.TestCase):
 
             Method Under Test: Perceptron.Perceptron.feedback()
         """
-        # GIVEN a perceptron
-        per = Perceptron(input_length)
-
         # AND the it's weights
-        before_weights = per.weights[:]
+        before_weights = self.per.weights[:]
 
         # AND a list of attributes
-        list = [0.5]*input_length
+        attr_vec = [0.5] * input_length
 
         # AND some 'true result' for the prediction
         true_value = 999999
 
         #
         # WHEN predicting the class for the list of attributes
-        pred_value = per.predict(list)
+        pred_value = self.per.predict(attr_vec)
 
         # AND giving feedback
-        per.feedback(true_value, pred_value, list)
+        self.per.feedback(true_value, pred_value, attr_vec)
 
         #
         # THEN the weights do not change
-        after_weights = per.weights[:]
-        self.assertNotEqual(before_weights, after_weights, 'The weights should change after recieving feedback (before: %s, after: %s)' % (str(before_weights), str(after_weights)))
+        after_weights = self.per.weights[:]
+        self.assertNotEqual(before_weights, after_weights,
+                            'The weights should change after recieving feedback (before: {0:s}, after: {1:s})'
+                            .format(str(before_weights), str(after_weights)))
 
     def test_errorRateReducesAfterMultipleFeedbacks(self):
         """
@@ -68,8 +68,6 @@ class PerceptronTest(unittest.TestCase):
             Methods Under Test: Perceptron.Perceptron.guess() &
                                 Perceptron.Perceptron.feedback()
         """
-        # GIVEN a perceptron
-        per = Perceptron(input_length)
 
         # AND a true_function that we want the perceptron to learn
         def f_true(x):
@@ -82,30 +80,28 @@ class PerceptronTest(unittest.TestCase):
         #
         # WHEN training the perceptron
         for m in range(number_of_training_vectors):
-            p = per.predict(x)
-            per.feedback(y, p, x)
+            p = self.per.predict(x)
+            self.per.feedback(y, p, x)
 
         # AND grouping the error (by iteration number) and find the average of each error
         no_of_bars = number_of_training_vectors / 25
         entries_per_bar = number_of_training_vectors / no_of_bars
         bars = []
-        for i in range(0,number_of_training_vectors-entries_per_bar,entries_per_bar):
-            avg_error = sum(per.errors[i:i+entries_per_bar])/float(entries_per_bar)
+        for i in range(0, number_of_training_vectors - entries_per_bar, entries_per_bar):
+            avg_error = sum(self.per.errors[i:i + entries_per_bar]) / float(entries_per_bar)
             bars.append(avg_error)
 
         #
         # THEN the error within each group is less than the previous
-        for i in range(1,len(bars)):
+        for i in range(1, len(bars)):
             curr_bar = bars[i]
-            prev_bar = bars[i-1]
+            prev_bar = bars[i - 1]
 
             current_less_than_prev = curr_bar < prev_bar
 
-            self.assertTrue(current_less_than_prev, 'Current Error (bar %d: %f) should be less than previous Error (bar %d: %f)'
-                            %(i, curr_bar, i-1,  prev_bar))
-
-
-
+            self.assertTrue(current_less_than_prev,
+                            'Current Error (bar %d: %f) should be less than previous Error (bar %d: %f)'
+                            % (i, curr_bar, i - 1, prev_bar))
 
 
 if __name__ == '__main__':
