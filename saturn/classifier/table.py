@@ -12,7 +12,7 @@ class FeatureTable:
     def find_id(self, feature_name):
         cls = None
         for k, v in self.feature_dictionary.items():
-            if feature_name.upper() == v:
+            if feature_name.upper() == v.upper():
                 cls = k
                 break
 

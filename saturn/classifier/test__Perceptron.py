@@ -7,10 +7,6 @@ number_of_training_vectors = 50
 
 class PerceptronTest(unittest.TestCase):
 
-    def setUp(self):
-        per = Perceptron(input_length)
-
-
     def test_weightsDontChangeWithPredict(self):
         """
             Test to see that the perceptron does not change the weights when predicting
