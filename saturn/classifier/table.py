@@ -44,13 +44,18 @@ class FeatureTable:
 
         msg = feature_name.upper() in self.feature_dictionary.values()
 
-        if not msg:
-            self.feature_dictionary[(n + 1) * self.increment_number] = feature_name.upper()
+        if n == 0:
+            self.feature_dictionary[1 * self.increment_number] = feature_name.upper()
             print 'Added'
             msg = True
         else:
-            print 'Already Exist'
-            msg = False
+            if not msg:
+                self.feature_dictionary[(n + 1) * self.increment_number] = feature_name.upper()
+                print 'Added'
+                msg = True
+            else:
+                print 'Already Exist'
+                msg = False
 
         return msg
 
