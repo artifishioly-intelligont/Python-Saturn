@@ -1,11 +1,14 @@
 import unittest
 from vectorizer import Vectorizer
 import os
+from time import gmtime, strftime
 
+def roundArray(arr, places=4):
+    return [float(int(10**places * n))/10**places for n in arr]
 
 default_prm_path = os.path.expanduser('~')+'/SaturnServer/Googlenet_791113_192patch.prm'
 
-image_loc =  os.path.expanduser('~')+'/SaturnServer/test_resources/windmill.jpg'
+image_loc =  os.path.expanduser('~')+'/SaturnServer/test_resources/test_tile.jpg'
 
 class VectorizerTest(unittest.TestCase):
 
@@ -17,11 +20,13 @@ class VectorizerTest(unittest.TestCase):
         vec = Vectorizer(layer=layer_under_test, prm_path=default_prm_path)
 
         # AND an expected output
-        expected_output = []
+        expected_output = [0.0016, 0.9883, 0.0099, 0.00]
 
         #
         # WHEN extracting the attributes from an image
-        actual_output = vec.get_attribute_vector(image_loc)
+        print 'This test has not stalled, it takes 20-40 seconds on an fast-ish computer (%s)' % strftime("%H:%M:%S", gmtime())
+
+        actual_output = roundArray(vec.get_attribute_vector(image_loc))
 
         #
         # THEN the output is as expected

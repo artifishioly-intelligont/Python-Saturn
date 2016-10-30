@@ -56,7 +56,7 @@ echo; echo;
 
 for test in $tests; do
 	echo '--------------------------------------------------------------'
-	echo "     test: ${test}"
+	echo -e "     test: \e[34m${test}\e[39m"
 	echo '--------------------------------------------------------------'
 	python $test
 
@@ -91,7 +91,7 @@ if [ -s ./failed_tests.log ];then
 	echo -e "	    		    FAILED"
 	echo -e '==============================================================\e[39m'
 	echo 'At least one failed test, entire test failed'
-	exit -1
+	exit -1g
 else
 	
 	echo -e '\e[32m=============================================================='
