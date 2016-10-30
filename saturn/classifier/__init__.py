@@ -1,4 +1,5 @@
-import Perceptron, table as Table
+import Perceptron
+import table as Table
 
 perceptron = Perceptron.Perceptron(1024)
 tab = Table.FeatureTable(0, 100, {100 : 'Pond', 200 : 'Tree', 300 : 'Park', 400 : 'Pathway'})

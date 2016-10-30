@@ -1,6 +1,6 @@
 import os
 from flask import Flask, render_template, request, redirect, url_for, send_from_directory
-from werkzeug import secure_filename
+
 import json
 
 import classifier
@@ -8,9 +8,6 @@ import olivia
 import tools
 
 app = Flask('Saturn')
-
-#creating table
-tab = classifier.tab
 
 # This is the path to the upload directory
 app.config['UPLOAD_FOLDER'] = '~/SaturnServer/images'
@@ -28,10 +25,10 @@ def index():
     print 'Log::Saturn::Message Recieved::/'
     return 'Endpoints: <br>' \
            '\t/ -- List All Endpoints<br>' \
-           '\t/guess/{degas_image_loc} -- Determine which feature the image is<br>' \
+           '\t/guess/ -- Determine which feature the image is<br>' \
            '\t/learn/ -- POST a batch of urls to images and the feature type, in order to teach the system<br>' \
            '\t/features/ -- List All    features<br>' \
-           '\t/features/{new_feature} -- Add the new feature<br>'
+           '\t/features/new -- Add a new feature<br>'
 
 
 """
@@ -129,14 +126,14 @@ def guess():
 """
 An endpoint used to fill the class drop down in the GUI
 
-Access: GET
+Access: all
 
 Return: - classes - An array of strings (classes)
 """
 @app.route('/features')
 def get_all_features():
     print 'Log::Saturn::Message Recieved::/features/'
-    features_name_list = tab.find_all_features()
+    features_name_list = classifier.tab.find_all_features()
     data = {}
 
     if len(features_name_list) > 0:
@@ -151,14 +148,17 @@ def get_all_features():
 """
 An endpoint to add a new feature to the list
 
-ACCESS: GET
+ACCESS: POST
+Fields: - feature -- The new feature
 
 Return: ??success or failure??
 """
-@app.route('/features/<new_feature>')
-def add_new_feature(new_feature):
-    print 'Log::Saturn::Message Recieved::/features/<new_feature>'
-    msg = tab.add_feature(new_feature)
+@app.route('/features/new')
+def add_new_feature():
+    print 'Log::Saturn::Message Recieved::/features/new'
+
+    new_feature = request.form['feature']
+    msg = classifier.tab.add_feature(new_feature)
     data = {}
 
     if msg:
@@ -166,7 +166,7 @@ def add_new_feature(new_feature):
         data['feature'] = new_feature + ' recorded'
     else:
         data['success'] = False
-        data['feature'] = 'Feature already exit'
+        data['feature'] = 'Feature already exists'
 
     return json.dumps(data)
 
