@@ -12,7 +12,7 @@ image_loc =  os.path.expanduser('~')+'/SaturnServer/test_resources/test_tile.jpg
 
 class VectorizerTest(unittest.TestCase):
 
-    def ptest_regression__vectorizer_layer_minus_one_behaves_same(self):
+    def test_regression__vectorizer_layer_minus_one_behaves_same(self):
         # GIVEN a layer to test
         layer_under_test = -1
 
@@ -25,7 +25,6 @@ class VectorizerTest(unittest.TestCase):
         #
         # WHEN extracting the attributes from an image
         print 'This test has not stalled, it takes 20-40 seconds on an fast-ish computer (%s)' % strftime("%H:%M:%S", gmtime())
-
         actual_output = roundArray(vec.get_attribute_vector(image_loc))
 
         #
