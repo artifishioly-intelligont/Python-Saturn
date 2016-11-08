@@ -50,10 +50,8 @@ touch $csv
 last_char=${#1}-1
 if [ "${1:last_char}" == "/"  ];then
 	content=$1*
-	echo 'ends in /'
 else
 	content=$1/*
-	echo 'doesnt end in /'
 fi
 
 # Determine the number of files to process
