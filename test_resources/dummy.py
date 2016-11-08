@@ -4,10 +4,6 @@ import re
 
 app = Flask('tester')
 
-@app.route('/')
-def start():
-	return 'server started'
-
 @app.route('/post', methods=['POST', 'GET'])
 def something():
 	print 'recieved post'
@@ -29,4 +25,4 @@ def something():
 	return str
 
 if __name__ == '__main__':
-	app.run(port=8000)
+	app.run(port=25565)

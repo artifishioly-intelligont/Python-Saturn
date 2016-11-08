@@ -25,7 +25,7 @@ class PingerTest(unittest.TestCase):
         # the result should be true
         self.assertEqual(result, "Pass")
 
-        #close a server
+        #close the server
         self.p.kill()
 
 if __name__ == "__main__":
