@@ -23,6 +23,14 @@ echo '=============================================================='
 echo '	                  run_tests.sh'
 echo '=============================================================='
 echo '--------------------------------------------------------------'
+echo '          Copying test_resources to local area'
+echo '--------------------------------------------------------------'
+for file in ./test_resources/; do
+    cp $file ~/SaturnServer/test_resources/
+done
+echo 'All copied'
+echo;
+echo '--------------------------------------------------------------'
 echo '                 Searching for tests'
 echo '--------------------------------------------------------------'
 echo "Searching for tests in ${PWD}"
