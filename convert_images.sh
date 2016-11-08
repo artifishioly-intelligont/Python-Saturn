@@ -36,7 +36,13 @@ touch $csv
 
 id=0
 inc=100
-for dir in $1/*; do 
+
+if [[ $dir =~ "/$"  ]];then
+	content=$1*
+else
+	content=$1/*
+fi
+for dir in $content; do 
 	feature=$(echo $dir | sed 's,.*/,,g'); id=$((id+$inc))
 	echo "${feature},${id}" >> id_names.csv
 	echo "--[ ${feature} ]--"	

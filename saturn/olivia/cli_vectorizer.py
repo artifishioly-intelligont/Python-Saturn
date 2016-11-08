@@ -12,7 +12,7 @@ from os.path import split, splitext, isfile
 from scipy.misc import imread, imsave
 
 #pretty printing full ndarrays
-def ndprint(a, format_string ='{0:.2f}'):
+def ndprint(a, format_string ='{0:.5f}'):
     print [format_string.format(v,i) for i,v in enumerate(a)]
 
 
