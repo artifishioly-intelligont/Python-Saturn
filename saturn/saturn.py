@@ -152,7 +152,7 @@ Fields: - feature -- The new feature
 
 Return: ??success or failure??
 """
-@app.route('/features/new')
+@app.route('/features/new', methods=['POST'])
 def add_new_feature():
     print 'Log::Saturn::Message Recieved::/features/new'
 
