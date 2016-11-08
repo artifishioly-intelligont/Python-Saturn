@@ -47,7 +47,7 @@ mkdir ~/SaturnServer/images 2>/dev/null
 
 # Download or copy the files needed to run and test the server
 download 'http://seurat.ecs.soton.ac.uk/~productizer/Googlenet_791113_192patch.prm' ~/SaturnServer 'prm file'
-for file in ./test_resources/; do
+for file in ./test_resources/*; do
     cp $file ~/SaturnServer/test_resources/
 done
 
