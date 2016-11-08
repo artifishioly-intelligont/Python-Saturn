@@ -1,5 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, send_from_directory
-
+from flask import Flask, request
 import json
 
 import classifier
@@ -8,70 +7,73 @@ import tools
 
 app = Flask('Saturn')
 
-# This is the path to the upload directory
-app.config['UPLOAD_FOLDER'] = '~/SaturnServer/images'
-# These are the extension that we are accepting to be uploaded
-app.config['ALLOWED_EXTENSIONS'] = set(['tiff', 'png', 'jpg', 'jpeg', 'gif'])
-
-# For a given file, return whether it's an allowed type or not
-def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1] in app.config['ALLOWED_EXTENSIONS']
-           
+#creating table
+tab = classifier.tab
 
 @app.route('/')
 def index():
     print 'Log::Saturn::Message Recieved::/'
     return 'Endpoints: <br>' \
            '\t/ -- List All Endpoints<br>' \
-           '\t/guess/ -- Determine which feature the image is<br>' \
+           '\t/guess/{degas_image_loc} -- Determine which feature the image is<br>' \
            '\t/learn/ -- POST a batch of urls to images and the feature type, in order to teach the system<br>' \
            '\t/features/ -- List All    features<br>' \
-           '\t/features/new -- Add a new feature<br>'
+           '\t/features/{new_feature} -- Add the new feature<br>'
 
 
 """
 The endpoint used to teach the classifier.
 
 Access: POST
-Fields: - img_names - Where the image is stored
-        - class - What class the img really belongs to
+Fields:	- img_names - Where the image is stored
+	    - class - What class the img really belongs to
 
 Return: - ??success or fail??
 """
-@app.route('/learn', methods=['POST'])
+@app.route('/learn')
 def learn():
-    print 'Log::Saturn::Message Recieved::/learn'
-    
-    data = {}
-    true_feature = request.form['feature']
-    failed_imgs = []
-    counter = -1
+    print 'Log::Saturn::Message Recieved::/learn/'
 
-    # Loop through the uploaded files
-    for key in request.files:
-        counter += 1
-        file = request.files[key]
+    # Stub values
+    if request.method == 'POST':
+        true_class = request.form['theme']
+        degas_urls = request.form['urls']
+
+    # De-comment for manual testing
+    # urls = ['windmill.jpg','windmill.jpg']
+    # true_class = classifier.tab.find_all_features()[0]
+
+    failed_urls = []
+    fail_messages = []
+    local_urls = []
+    for image_name in degas_urls:
         local_dest = tools.images.new_location()
-    
-        # Check if the file is one of the allowed types/extensions
-        if file and allowed_file(file.filename):
-            # Save the file to the specified location
-            file.save(local_dest)
-            # Convert that image to an attr vec
-            attr_vec = olivia.get_attr_vec(local_dest)
-            # learn!
-            img_class = classifier.learn(attr_vec, true_feature)
+        try:
+            tools.download_image(image_name, local_dest)
+            local_urls.append(local_dest)
+        except Exception as ex:
+            print 'Error::Saturn:: ' + ex.message
+            failed_urls.append(image_name)
+            fail_messages.append(ex.message)
 
-            data['success' + str(counter)] = True
-            data['true_feature'] = true_feature
-        else:
-            print 'Error::Saturn:: Invalid file type'
+    local_urls = [None, None]
 
-            data['success' + str(counter)] = False
-            failed_imgs.append(file.filename) 
+    # If all downloads failed
+    if len(local_urls) == len(failed_urls):
+        data = {}
+        data['success'] = False
+        data['failed_images'] = failed_urls
+        data['fail_messages'] = fail_messages
+        return json.dumps(data)
 
-    data['failed_images'] = failed_imgs
+    for feature in local_urls:
+        attr_vec = olivia.get_attr_vec(feature)
+        classifier.learn(attr_vec, true_class)
+
+    data = {}
+    data['success'] = True
+    data['failed_images'] = failed_urls
+    data['fail_messages'] = fail_messages
 
     return json.dumps(data)
 
@@ -79,60 +81,71 @@ def learn():
 """
 Endpoint to tell the user what class the image is guessed to belong to
 
-Access: POST
+Access: GET
 
-Return: - class - The class that the img is believed to belong to
+Return:	- class - The class that the img is believed to belong to
 
 """
-@app.route('/guess', methods=['POST'])
-def guess():
-    print 'Log::Saturn::Message Recieved::/guess'
-    
+@app.route('/guess/<degas_img_name>')
+def guess(degas_img_name):
+    print 'Log::Saturn::Message Recieved::/guess/' + degas_img_name
+
+    # Find somewhere to store the image
+    local_dest = tools.images.new_location()
+
+    # Store the image at local_dest
+    try:
+        tools.download_image(degas_img_name, local_dest)
+    except Exception as ex:
+        print 'Error::Saturn:: ' + ex.message
+
+        data = {}
+        data['success'] = False
+        data['message'] = ex.message
+        data['class'] = None
+
+        return  json.dumps(data)
+
+    # Convert that image to an attr vec
+    attr_vec = olivia.get_attr_vec(local_dest)
+    # guess what's in the attr vec!
+    img_class = classifier.guess(attr_vec)
+
+
     data = {}
-    failed_imgs = []
-    counter = -1
+    if img_class == None:
+        data['success'] = False
+        data['message'] = 'There are no classes in the system. Go to {domain}/features/{new_feature_name} to add some.'
+    else:
+        data['success'] = True
+    data['class'] = img_class
 
-    # Loop through the uploaded files
-    for key in request.files:
-        counter += 1
-        file = request.files[key]
-        local_dest = tools.images.new_location()
-    
-        # Check if the file is one of the allowed types/extensions
-        if file and allowed_file(file.filename):
-            # Save the file to the specified location
-            file.save(local_dest)
-            # Convert that image to an attr vec
-            attr_vec = olivia.get_attr_vec(local_dest)
-            # guess!
-            guessed_feature = classifier.guess(attr_vec)
+    return json.dumps(data)
 
-            data['success' + str(counter)] = True           
-            data['guessed_feature' + str(counter)] = guessed_feature
-        else:
-            print 'Error::Saturn:: Invalid file type'
-
-            data['success' + str(counter)] = False
-            data['guessed_feature' + str(counter)] = None
-            
-            failed_imgs.append(file.filename)
-
-    data['failed_images'] = failed_imgs
-    
+"""
+An endpoint to ensure people use /guess correctly
+"""
+@app.route('/guess')
+def wrong_path_guess():
+    print 'Log::Saturn::Message Recieved::/guess/'
+    data = {}
+    data['success'] = False
+    data['message'] = 'Incorrect guess path usage. You should use: \'{domain}/guess/{dagus_img_url}\''
+    data['class'] = None
     return json.dumps(data)
 
 
 """
 An endpoint used to fill the class drop down in the GUI
 
-Access: all
+Access: GET
 
-Return: - classes - An array of strings (classes)
+Return:	- classes - An array of strings (classes)
 """
 @app.route('/features')
 def get_all_features():
     print 'Log::Saturn::Message Recieved::/features/'
-    features_name_list = classifier.tab.find_all_features()
+    features_name_list = tab.find_all_features()
     data = {}
 
     if len(features_name_list) > 0:
@@ -147,17 +160,14 @@ def get_all_features():
 """
 An endpoint to add a new feature to the list
 
-ACCESS: POST
-Fields: - feature -- The new feature
+ACCESS: GET
 
 Return: ??success or failure??
 """
-@app.route('/features/new')
-def add_new_feature():
-    print 'Log::Saturn::Message Recieved::/features/new'
-
-    new_feature = request.form['feature']
-    msg = classifier.tab.add_feature(new_feature)
+@app.route('/features/<new_feature>')
+def add_new_feature(new_feature):
+    print 'Log::Saturn::Message Recieved::/features/<new_feature>'
+    msg = tab.add_feature(new_feature)
     data = {}
 
     if msg:
@@ -165,11 +175,12 @@ def add_new_feature():
         data['feature'] = new_feature + ' recorded'
     else:
         data['success'] = False
-        data['feature'] = 'Feature already exists'
+        data['feature'] = 'Feature already exit'
 
     return json.dumps(data)
 
 if __name__ == '__main__':
     print 'Log::Saturn:: Starting server'
+    app.debug = True
     app.run()
     print 'Log::Saturn:: Server closing'
