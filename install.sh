@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+#
 # Description:
 #   The installer for the Saturn service
 #
@@ -44,9 +45,11 @@ mkdir ~/SaturnServer 2>/dev/null
 mkdir ~/SaturnServer/test_resources 2>/dev/null
 mkdir ~/SaturnServer/images 2>/dev/null
 
-# Download the files needed to run and test the server
-download 'http://degas.ecs.soton.ac.uk/~productizer/test_resources/test_tile.jpg' ~/SaturnServer/test_resources 'test_tile.jpg'
+# Download or copy the files needed to run and test the server
 download 'http://seurat.ecs.soton.ac.uk/~productizer/Googlenet_791113_192patch.prm' ~/SaturnServer 'prm file'
+for file in ./test_resources/; do
+    cp $file ~/SaturnServer/test_resources/
+done
 
 # Ensure that the prm file is downloaded!
 if [ -e ~/SaturnServer/Googlenet_791113_192patch.prm ] ; then

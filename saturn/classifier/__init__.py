@@ -13,7 +13,6 @@ def guess(attr_vec):
     :param attr_vec: The long list of numerical representations of the attributes extracted (by olivia module) of a sub-image
     :return: The name of the class the classifier believes the sub-image belongs to
     """
-    print 'Debug::Classifier:: %s' % str(attr_vec)
     raw_pred = perceptron.predict(attr_vec)
     pred_class = tab.find_name(raw_pred)
 

@@ -91,7 +91,7 @@ if [ -s ./failed_tests.log ];then
 	echo -e "	    		    FAILED"
 	echo -e '==============================================================\e[39m'
 	echo 'At least one failed test, entire test failed'
-	exit -1g
+	exit -1
 else
 	
 	echo -e '\e[32m=============================================================='
