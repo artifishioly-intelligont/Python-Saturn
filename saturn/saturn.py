@@ -1,6 +1,6 @@
 from flask import Flask, request
 import json
-
+import urllib
 import classifier
 import olivia
 import tools
@@ -30,15 +30,16 @@ Fields:	- img_names - Where the image is stored
 
 Return: - ??success or fail??
 """
-@app.route('/learn')
+@app.route('/learn', methods=["POST"])
 def learn():
     print 'Log::Saturn::Message Recieved::/learn/'
-
     # Stub values
     if request.method == 'POST':
         true_class = request.form['theme']
-        degas_urls = request.form['urls']
+        degas_urls = request.form['urls'].split(";")
+        degas_urls.pop()
 
+    # return json.dumps(degas_urls)
     # De-comment for manual testing
     # urls = ['windmill.jpg','windmill.jpg']
     # true_class = classifier.tab.find_all_features()[0]
@@ -49,14 +50,14 @@ def learn():
     for image_name in degas_urls:
         local_dest = tools.images.new_location()
         try:
-            tools.download_image(image_name, local_dest)
+            urllib.urlretrieve(image_name, local_dest)
+	    # tools.download_image(image_name, local_dest)
             local_urls.append(local_dest)
         except Exception as ex:
             print 'Error::Saturn:: ' + ex.message
             failed_urls.append(image_name)
             fail_messages.append(ex.message)
-
-    local_urls = [None, None]
+    # local_urls = [None, None]
 
     # If all downloads failed
     if len(local_urls) == len(failed_urls):
