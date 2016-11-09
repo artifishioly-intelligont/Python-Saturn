@@ -20,3 +20,6 @@ venv/
 passed_tests.log
 failed_tests.log
 temp-plot.html
+*.html
+*.log
+*.csv
