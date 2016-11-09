@@ -27,6 +27,7 @@ class PingerTest(unittest.TestCase):
 
         #close the server
         self.p.kill()
+        self.p.wait()
 
 if __name__ == "__main__":
     unittest.main()
