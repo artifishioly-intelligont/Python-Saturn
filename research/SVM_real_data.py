@@ -34,7 +34,7 @@ def extract_datasets(n):
 	
 	return X_test, Y_test, X_train, Y_train
 
-lin_clf = svm.SVC(kernel='linear', probability=True)
+lin_clf = svm.SVC(kernel='linear',probability=False, decision_function_shape="ovr")
 
 for i in range(5):
 	print "*****************TEST " + str(i) + "*****************"
@@ -50,7 +50,7 @@ for i in range(5):
 		if float(prediction[0]) == float(Y_test[i]):
 			correct += 1
 			
-		prob = lin_clf.predict_proba(np.array([X_test[i]]))
+		prob = lin_clf.decision_function(np.array([X_test[i]]))
 		print prob
 		print
 			
