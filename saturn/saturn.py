@@ -25,8 +25,8 @@ def index():
 The endpoint used to teach the classifier.
 
 Access: POST
-Fields:	- img_names - Where the image is stored
-	    - class - What class the img really belongs to
+Fields: - img_names - Where the image is stored
+        - class - What class the img really belongs to
 
 Return: - ??success or fail??
 """
@@ -51,7 +51,7 @@ def learn():
         local_dest = tools.images.new_location()
         try:
             urllib.urlretrieve(image_name, local_dest)
-	    # tools.download_image(image_name, local_dest)
+        # tools.download_image(image_name, local_dest)
             local_urls.append(local_dest)
         except Exception as ex:
             print 'Error::Saturn:: ' + ex.message
@@ -75,6 +75,66 @@ def learn():
     data['success'] = True
     data['failed_images'] = failed_urls
     data['fail_messages'] = fail_messages
+
+    return json.dumps(data)
+
+"""
+Endpoint to tell the user what class the image is guessed to belong to
+
+Access: POST
+
+Return: - class - The class that the img is believed to belong to
+
+"""
+@app.route('/guess', methods=["POST"])
+def learn():
+    print 'Log::Saturn::Message Recieved::/guess/'
+    # Stub values
+    if request.method == 'POST':
+        degas_urls = request.form['urls'].split(";")
+        degas_urls.pop()
+
+    # return json.dumps(degas_urls)
+    # De-comment for manual testing
+    # urls = ['windmill.jpg','windmill.jpg']
+    # true_class = classifier.tab.find_all_features()[0]
+
+    failed_urls = []
+    fail_messages = []
+    local_urls = []
+    for image_name in degas_urls:
+        local_dest = tools.images.new_location()
+        try:
+            urllib.urlretrieve(image_name, local_dest)
+        # tools.download_image(image_name, local_dest)
+            local_urls.append(local_dest)
+        except Exception as ex:
+            print 'Error::Saturn:: ' + ex.message
+            failed_urls.append(image_name)
+            fail_messages.append(ex.message)
+    # local_urls = [None, None]
+
+    # If all downloads failed
+    if len(local_urls) == len(failed_urls):
+        data = {}
+        data['success'] = False
+        data['failed_images'] = failed_urls
+        data['fail_messages'] = fail_messages
+        return json.dumps(data)
+
+    # Convert that image to an attr vec
+    attr_vec = olivia.get_attr_vec(local_urls[0])
+    # guess what's in the attr vec!
+    img_class = classifier.guess(attr_vec)
+
+
+    data = {}
+    if img_class == None:
+        data['success'] = False
+        data['message'] = 'There are no classes in the system. Go to {domain}/features/{new_feature_name} to add some.'
+    else:
+        data['success'] = True
+        data['class'] = img_class
 
     return json.dumps(data)
 
@@ -126,7 +186,7 @@ def guess(degas_img_name):
 """
 An endpoint to ensure people use /guess correctly
 """
-@app.route('/guess')
+"""@app.route('/guess')
 def wrong_path_guess():
     print 'Log::Saturn::Message Recieved::/guess/'
     data = {}
@@ -135,7 +195,7 @@ def wrong_path_guess():
     data['class'] = None
     return json.dumps(data)
 
-
+"""
 """
 An endpoint used to fill the class drop down in the GUI
 
