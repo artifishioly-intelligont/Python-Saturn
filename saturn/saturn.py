@@ -87,7 +87,7 @@ Return: - class - The class that the img is believed to belong to
 
 """
 @app.route('/guess', methods=["POST"])
-def learn():
+def guess():
     print 'Log::Saturn::Message Recieved::/guess/'
     # Stub values
     if request.method == 'POST':
