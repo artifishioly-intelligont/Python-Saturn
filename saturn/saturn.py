@@ -94,10 +94,6 @@ def guess():
         degas_urls = request.form['urls'].split(";")
         degas_urls.pop()
 
-    # return json.dumps(degas_urls)
-    # De-comment for manual testing
-    # urls = ['windmill.jpg','windmill.jpg']
-    # true_class = classifier.tab.find_all_features()[0]
 
     failed_urls = []
     fail_messages = []
@@ -113,7 +109,7 @@ def guess():
             failed_urls.append(image_name)
             fail_messages.append(ex.message)
     # local_urls = [None, None]
-
+    
     # If all downloads failed
     if len(local_urls) == len(failed_urls):
         data = {}
@@ -147,8 +143,8 @@ Access: GET
 Return:	- class - The class that the img is believed to belong to
 
 """
-@app.route('/guess/<degas_img_name>')
-def guess(degas_img_name):
+@app.route('/guess2/<degas_img_name>')
+def guess2(degas_img_name):
     print 'Log::Saturn::Message Recieved::/guess/' + degas_img_name
 
     # Find somewhere to store the image
