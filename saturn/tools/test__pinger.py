@@ -20,7 +20,7 @@ class PingerTest(unittest.TestCase):
         self.package = [1.2, 2.2, 3.2, 4.2, 5.2]
 
         #when the parameters are fed into the pinger method which will use the url to send the package to diff server
-        result = post_request(self.url, self.package)
+        result = post_request(self.url, {'key1':self.package})
 
         # the result should be true
         self.assertEqual(result, "Pass")
