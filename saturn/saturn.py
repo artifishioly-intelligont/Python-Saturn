@@ -4,6 +4,8 @@ import urllib
 import classifier
 import olivia
 import tools
+import image as find
+import types
 
 app = Flask('Saturn')
 
@@ -235,6 +237,45 @@ def add_new_feature(new_feature):
         data['feature'] = 'Feature already exit'
 
     return json.dumps(data)
+
+'''
+gets url list as input
+send the url list to oliva's microservice and gets attribute vector in return
+sends the attribute vector to classifier and get the class
+use that class to send the respective url to the frontend
+
+classifier
+learn(array(array(attribute vectors)), array(class_ids))
+
+guess(array(array(attribute vectors))
+--> returns array(class_names)
+'''
+@app.route('/find', methods=['POST', 'GET'])
+def get_class():
+    '''
+
+    :return:
+    '''
+    #holds the url that belongs to the specific type
+    output_class = []
+
+    if request.method == 'POST':
+        jsonData = request.get_json()
+        url_list = jsonData['url']
+        type = jsonData['type']
+
+        if url_list:
+            image_attributes_dict = find.send_to_olivia(url_list)
+
+            if type(image_attributes_dict) != types.BooleanType:
+                image_attributes_array = image_attributes_dict.values()
+                # return {url : class}
+                image_classes_dict = find.send_to_classifier(image_attributes_array)
+
+                #returns array of url with are of specific type
+                output_class = find.type_class(type, image_classes_dict)
+
+    return json.dump(output_class)
 
 if __name__ == '__main__':
     print 'Log::Saturn:: Starting server'
