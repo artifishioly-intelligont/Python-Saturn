@@ -16,11 +16,12 @@ def guess(attr_vec):
     raw_preds, raw_probs = svm.predict([attr_vec])
     
     class_pred = tab.find_name(raw_preds[0])
+    prob = raw_probs[0][0]
 
-    print 'Log::Classifier:: predicts the class %s' % class_preds[0]
+    print 'Log::Classifier:: predicts the class %s' % class_pred
     print 'Log::Classifier:: probabilities:'
-    print raw_probs[0]
-    return class_preds[0], raw_probs[0]
+    print prob
+    return class_pred, prob
 
 def learn(attr_vecs, true_classes):
     """
