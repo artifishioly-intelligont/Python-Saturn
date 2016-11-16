@@ -130,8 +130,7 @@ def guess():
     # Convert that image to an attr vec
     attr_vec = olivia.get_attr_vec(local_urls[0])
     # guess what's in the attr vec!
-    # img_class, img_proba = classifier.guess(attr_vec)
-    img_class = classifier.guess(attr_vec)
+    img_class, img_proba = classifier.guess(attr_vec)
 
 
     data = {}
@@ -141,7 +140,7 @@ def guess():
     else:
         data['success'] = True
         data['class'] = img_class
-        #data['proba'] = list(img_proba)
+        data['proba'] = list(img_proba)
 
     return json.dumps(data)
 
