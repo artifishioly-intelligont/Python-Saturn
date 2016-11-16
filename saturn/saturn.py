@@ -31,19 +31,19 @@ Fields: - img_names - Where the image is stored
 
 Return: - ??success or fail??
 """
-@app.route('/learn', methods=["GET"])
+@app.route('/learn', methods=["POST"])
 def learn():
     print 'Log::Saturn::Message Recieved::/learn/'
     # Stub values
-    #if request.method == 'POST':
-    #    true_class = request.form['theme']
-    #    degas_urls = request.form['urls'].split(";")
-    #    degas_urls.pop()
+    if request.method == 'POST':
+        true_class = request.form['theme']
+        degas_urls = request.form['urls'].split(";")
+        degas_urls.pop()
 
     # return json.dumps(degas_urls)
     # De-comment for manual testing
-    degas_urls = ['windmill.jpg','windmill.jpg']
-    true_class = classifier.tab.find_all_features()[0]
+    # degas_urls = ['windmill.jpg','windmill.jpg']
+    # true_class = classifier.tab.find_all_features()[0]
 
     failed_urls = []
     fail_messages = []
@@ -53,8 +53,8 @@ def learn():
     for image_name in degas_urls:
         local_dest = tools.images.new_location()
         try:
-        #    urllib.urlretrieve(image_name, local_dest)
-            tools.download_image(image_name, local_dest)
+            urllib.urlretrieve(image_name, local_dest)
+        #    tools.download_image(image_name, local_dest)
             local_urls.append(local_dest)
         except Exception as ex:
             print 'Error::Saturn:: ' + ex.message
@@ -99,7 +99,8 @@ def guess():
     if request.method == 'POST':
         degas_urls = request.form['urls'].split(";")
         degas_urls.pop()
-
+        
+    # degas_urls = ['windmill.jpg','windmill.jpg']
 
     failed_urls = []
     fail_messages = []
@@ -108,7 +109,7 @@ def guess():
         local_dest = tools.images.new_location()
         try:
             urllib.urlretrieve(image_name, local_dest)
-        # tools.download_image(image_name, local_dest)
+        #    tools.download_image(image_name, local_dest)
             local_urls.append(local_dest)
         except Exception as ex:
             print 'Error::Saturn:: ' + ex.message
@@ -127,7 +128,7 @@ def guess():
     # Convert that image to an attr vec
     attr_vec = olivia.get_attr_vec(local_urls[0])
     # guess what's in the attr vec!
-    img_class = classifier.guess(attr_vec)
+    img_class, img_proba = classifier.guess(attr_vec)
 
 
     data = {}
@@ -137,6 +138,7 @@ def guess():
     else:
         data['success'] = True
         data['class'] = img_class
+        data['proba'] = list(img_proba)
 
     return json.dumps(data)
 
@@ -246,6 +248,6 @@ def add_new_feature(new_feature):
 
 if __name__ == '__main__':
     print 'Log::Saturn:: Starting server'
-    app.debug = False
+    app.debug = True
     app.run()
     print 'Log::Saturn:: Server closing'
