@@ -5,6 +5,8 @@ import classifier
 import olivia
 import tools
 
+from copy import deepcopy
+
 app = Flask('Saturn')
 
 #creating table
@@ -20,7 +22,6 @@ def index():
            '\t/features/ -- List All    features<br>' \
            '\t/features/{new_feature} -- Add the new feature<br>'
 
-
 """
 The endpoint used to teach the classifier.
 
@@ -30,28 +31,30 @@ Fields:	- img_names - Where the image is stored
 
 Return: - ??success or fail??
 """
-@app.route('/learn', methods=["POST"])
+@app.route('/learn', methods=["GET"])
 def learn():
     print 'Log::Saturn::Message Recieved::/learn/'
     # Stub values
-    if request.method == 'POST':
-        true_class = request.form['theme']
-        degas_urls = request.form['urls'].split(";")
-        degas_urls.pop()
+    #if request.method == 'POST':
+    #    true_class = request.form['theme']
+    #    degas_urls = request.form['urls'].split(";")
+    #    degas_urls.pop()
 
     # return json.dumps(degas_urls)
     # De-comment for manual testing
-    # urls = ['windmill.jpg','windmill.jpg']
-    # true_class = classifier.tab.find_all_features()[0]
+    degas_urls = ['windmill.jpg','windmill.jpg']
+    true_class = classifier.tab.find_all_features()[0]
 
     failed_urls = []
     fail_messages = []
     local_urls = []
+    attr_vecs = []
+    true_classes = []
     for image_name in degas_urls:
         local_dest = tools.images.new_location()
         try:
-            urllib.urlretrieve(image_name, local_dest)
-	    # tools.download_image(image_name, local_dest)
+        #    urllib.urlretrieve(image_name, local_dest)
+            tools.download_image(image_name, local_dest)
             local_urls.append(local_dest)
         except Exception as ex:
             print 'Error::Saturn:: ' + ex.message
@@ -68,8 +71,11 @@ def learn():
         return json.dumps(data)
 
     for feature in local_urls:
-        attr_vec = olivia.get_attr_vec(feature)
-        classifier.learn(attr_vec, true_class)
+        attr_vec = deepcopy(olivia.get_attr_vec(local_dest))         
+        attr_vecs.append(attr_vec)
+        true_classes.append(true_class)
+        
+    classifier.learn(attr_vecs, true_classes)
 
     data = {}
     data['success'] = True
@@ -110,7 +116,7 @@ def guess(degas_img_name):
     # Convert that image to an attr vec
     attr_vec = olivia.get_attr_vec(local_dest)
     # guess what's in the attr vec!
-    img_class = classifier.guess(attr_vec)
+    img_class, img_proba = classifier.guess(attr_vec)
 
 
     data = {}
@@ -120,6 +126,7 @@ def guess(degas_img_name):
     else:
         data['success'] = True
     data['class'] = img_class
+    data['probs'] = img_proba
 
     return json.dumps(data)
 
@@ -133,6 +140,7 @@ def wrong_path_guess():
     data['success'] = False
     data['message'] = 'Incorrect guess path usage. You should use: \'{domain}/guess/{dagus_img_url}\''
     data['class'] = None
+
     return json.dumps(data)
 
 
@@ -182,6 +190,6 @@ def add_new_feature(new_feature):
 
 if __name__ == '__main__':
     print 'Log::Saturn:: Starting server'
-    app.debug = True
+    app.debug = False
     app.run()
     print 'Log::Saturn:: Server closing'

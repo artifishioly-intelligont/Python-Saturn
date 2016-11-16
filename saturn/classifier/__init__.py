@@ -1,25 +1,28 @@
-import Perceptron
-import table as Table
+import SVM, table as Table
 
-perceptron = Perceptron.Perceptron(1024)
-tab = Table.FeatureTable(0, 100, {100 : 'Pond', 200 : 'Tree', 300 : 'Park', 400 : 'Pathway'})
+
+svm = SVM.SVM()
+tab = Table.FeatureTable(0, 100, {100 : 'Pond', 200 : 'Tree', 300 : 'Park', 400 : 'Pathway', 500 : 'Road'})
 
 def guess(attr_vec):
     """
-    Guesses which class the sub-image belongs to.
+    Guesses which class the sub-images belong to.
 
     e.g. Given an image it could return 'tree'
 
     :param attr_vec: The long list of numerical representations of the attributes extracted (by olivia module) of a sub-image
     :return: The name of the class the classifier believes the sub-image belongs to
     """
-    raw_pred = perceptron.predict(attr_vec)
-    pred_class = tab.find_name(raw_pred)
+    raw_preds, raw_probs = svm.predict([attr_vec])
+    
+    class_pred = tab.find_name(raw_preds[0])
 
-    print 'Log::Classifier:: predicts the class %s' % pred_class
-    return pred_class
+    print 'Log::Classifier:: predicts the class %s' % class_preds[0]
+    print 'Log::Classifier:: probabilities:'
+    print raw_probs[0]
+    return class_preds[0], raw_probs[0]
 
-def learn(attr_vec, true_class):
+def learn(attr_vecs, true_classes):
     """
     Forces the classifier to learn what class the sub-image belongs to.
 
@@ -27,10 +30,10 @@ def learn(attr_vec, true_class):
     :param true_class: The class that the sub-image belongs to
     :return: None
     """
-    raw_pred_id = perceptron.predict(attr_vec)
-    true_class_id = tab.find_id(true_class)
-    print 'Log::Classifier:: predicts the raw_id %f (which converts to: %s) when it should predict %s'\
-          % (raw_pred_id, tab.find_name(raw_pred_id), true_class)
+    true_class_ids = []
+    for name in true_classes:
+        true_class_ids.append(tab.find_id(name))
+
     print 'Log::Classifier:: learning'
 
-    perceptron.feedback(true_class_id, raw_pred_id, attr_vec)
+    svm.learn(attr_vecs, true_class_ids)
