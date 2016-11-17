@@ -257,25 +257,27 @@ def get_class():
     :return:
     '''
     #holds the url that belongs to the specific type
-    output_class = []
 
     if request.method == 'POST':
-        jsonData = request.get_json()
-        url_list = jsonData['url']
-        type = jsonData['type']
+        #need to check how the names are being used in form
+        url_list = request.form('urls').split(";")
+        type = request.form('theme')
 
         if url_list:
-            image_attributes_dict = find.send_to_olivia(url_list)
+            image_attributes_json = find.send_to_olivia(url_list)
+            
+            image_classes_dict = find.send_to_classifier(image_attributes_json.get_json()['image_vectors'])
 
-            if type(image_attributes_dict) != types.BooleanType:
-                image_attributes_array = image_attributes_dict.values()
-                # return {url : class}
-                image_classes_dict = find.send_to_classifier(image_attributes_array)
+            #returns array of url with are of specific type
+            class_dict = find.type_class(type, image_classes_dict)
 
-                #returns array of url with are of specific type
-                output_class = find.type_class(type, image_classes_dict)
+        success = len(failed_images) == 0
 
-    return json.dump(output_class)
+        data = {'success': success,
+                'image_urls': class_dict,
+                'failed_urls': image_attributes_json.get_json()['failed_images']}
+
+    return json.dump(data)
 
 if __name__ == '__main__':
     print 'Log::Saturn:: Starting server'
