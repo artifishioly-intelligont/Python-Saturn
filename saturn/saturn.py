@@ -284,7 +284,7 @@ def get_class():
         success = len(failed_images) == 0
 
         data = {'success': success,
-                'image_urls': class_dict,
+                'passed_urls': class_dict,
                 'failed_urls': image_attributes_json.get_json()['failed_images']}
 
     return json.dump(data)
