@@ -5,7 +5,7 @@ import classifier
 import olivia
 import tools
 import image as find
-import types
+import os
 
 from copy import deepcopy
 
@@ -274,18 +274,34 @@ def get_class():
         type = request.form('theme')
 
         if url_list:
-            image_attributes_json = find.send_to_olivia(url_list)
+            #checking if both olivia and classifier servers are up and running
+            hostname1='Olivia'
+            hostname2='Classifier'
+
+            response1 = os.system("ping -c 1 " + hostname1)
+            response2=os.system("ping -c" + hostname2)
+
+            try:
+                if response1 == 0 & response2 == 0:
+                    image_attributes_json = find.send_to_olivia(url_list)
             
-            image_classes_dict = find.send_to_classifier(image_attributes_json.get_json()['image_vectors'])
+                    image_classes_dict = find.send_to_classifier(image_attributes_json.get_json()['image_vectors'])
+                    failed_images = image_attributes_json.get_json()['failed_images']
 
-            #returns array of url with are of specific type
-            class_dict = find.type_class(type, image_classes_dict)
+                    #returns array of url with are of specific type
+                    class_dict = find.type_class(type, image_classes_dict)
 
-        success = len(failed_images) == 0
+                    success = len(failed_images) == 0
+                else:
+                    raise Exception("Server is down")
+            except Exception as e:
+                success = e.message
+                print e.args
 
         data = {'success': success,
                 'passed_urls': class_dict,
-                'failed_urls': image_attributes_json.get_json()['failed_images']}
+                'failed_urls': failed_images
+                }
 
     return json.dump(data)
 
