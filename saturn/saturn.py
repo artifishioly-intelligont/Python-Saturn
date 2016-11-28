@@ -260,32 +260,59 @@ learn(array(array(attribute vectors)), array(class_ids))
 guess(array(array(attribute vectors))
 --> returns array(class_names)
 '''
-@app.route('/find', methods=['POST', 'GET'])
+@app.route('/find', methods=['POST'])
 def get_class():
     '''
 
     :return:
+    example (successful) return:
+    {
+        success : True,
+        image_classes :
+        {
+            'url1' : [0.1, 0.0, 0.5, ...],
+            'url2' : [0.9, 1.2, 0.6, ...]
+        },
+        failed_images : []
+    }
+    example (failed) return:
+    {
+    success : False,
+    image_classes :
+    {
+        'url1' : [0.1, 0.0, 0.5, ...]
+    },
+    failed_images :
+    {
+        'url2' : 'DownloadException: The path 'url2' does not exist'
+    }
     '''
-    #holds the url that belongs to the specific type
-    output_class = []
+    jsonData = request.get_json()
+    url_list = jsonData['urls']
+    type = jsonData['type']
 
-    if request.method == 'POST':
-        jsonData = request.get_json()
-        url_list = jsonData['url']
-        type = jsonData['type']
+    # Ensure the parameters exist
+    if not url_list:
+        return json.dumps({'success': False, 'message': 'No URLs specified, add an array value with key \'urls\''})
+    if not type:
+        return json.dumps({'success': False, 'message': 'No search type specified, add a string value with key \'type\''})
 
-        if url_list:
-            image_attributes_dict = find.send_to_olivia(url_list)
+    # Get the vectorized images
+    image_vectors, failed_images, success = find.send_to_olivia(url_list)
 
-            if type(image_attributes_dict) != types.BooleanType:
-                image_attributes_array = image_attributes_dict.values()
-                # return {url : class}
-                image_classes_dict = find.send_to_classifier(image_attributes_array)
+    output_classes = {}
+    if len(image_vectors) > 0:
+        # return {url : class} and remove the success criteria
+        image_classes_dict = find.send_to_classifier(image_vectors)
+        del image_classes_dict['success']
 
-                #returns array of url with are of specific type
-                output_class = find.type_class(type, image_classes_dict)
+        # returns a dict where all values have the value 'type'
+        output_classes = find.type_class(type, image_classes_dict)
 
-    return json.dump(output_class)
+    return json.dumps({'success': len(failed_images) > 0,
+                       'failed_images': failed_images,
+                       'image_classes': output_classes})
+
 
 if __name__ == '__main__':
     print 'Log::Saturn:: Starting server'
