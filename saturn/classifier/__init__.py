@@ -31,7 +31,7 @@ def learn(attr_vecs, true_classes):
     data = \
         {
             'vectors': attr_vecs,
-            'feature': true_classes
+            'theme': true_classes
         }
 
     response = pinger.post_request(url, data)
