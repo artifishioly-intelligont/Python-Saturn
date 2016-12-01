@@ -36,11 +36,10 @@ Return: - ??success or fail??
 @app.route('/learn', methods=["POST"])
 def learn():
     print 'Log::Saturn::Message Recieved::/learn/'
-    # Stub values
-    if request.method == 'POST':
-        true_class = request.form['theme']
-        degas_urls = request.form['urls'].split(";")
-        degas_urls.pop()
+
+    true_class = request.form['theme']
+    degas_urls = request.form['urls'].split(";")
+    degas_urls.pop()
 
     # return json.dumps(degas_urls)
     # De-comment for manual testing
@@ -293,7 +292,7 @@ def get_class():
 
     # Ensure the parameters exist
     url_list = json_data['urls']
-    type = json_data['type']
+    type = json_data['theme']  # e.g. pong, tree, etc
     if not url_list:
         return json.dumps({'success': False, 'message': 'No URLs specified, add an array value with key \'urls\''})
     if not type:
