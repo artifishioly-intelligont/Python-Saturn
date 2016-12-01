@@ -11,9 +11,6 @@ from copy import deepcopy
 
 app = Flask('Saturn')
 
-#creating table
-tab = classifier.tab
-
 @app.route('/')
 def index():
     print 'Log::Saturn::Message Recieved::/'
