@@ -38,7 +38,7 @@ def learn(attr_vecs, true_classes):
     success = response['success']
 
     return success
-    
+
 
 def get_all_features():
     url = hostname + "/features"
