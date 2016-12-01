@@ -6,7 +6,7 @@ def post_request(url, payload):
 
     r = requests.post(url , json=payload, headers=headers)
     print(r.url)
-    return r.text
+    return r.json()
     
 def get_request(url):
     r = requests.get(url)
