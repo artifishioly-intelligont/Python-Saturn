@@ -39,12 +39,9 @@ def learn():
 
     true_class = request.form['theme']
     degas_urls = request.form['urls'].split(";")
-    degas_urls.pop()
 
-    # return json.dumps(degas_urls)
-    # De-comment for manual testing
-    # degas_urls = ['windmill.jpg','windmill.jpg']
-    # true_class = classifier.tab.find_all_features()[0]
+    # Remove the
+    degas_urls.pop()
 
     failed_urls = []
     fail_messages = []
@@ -96,50 +93,31 @@ Return: - class - The class that the img is believed to belong to
 @app.route('/guess', methods=["POST"])
 def guess():
     print 'Log::Saturn::Message Recieved::/guess/'
-    # Stub values
-    if request.method == 'POST':
-        degas_urls = request.form['urls'].split(";")
-        degas_urls.pop()
+
+    remote_urls = request.form['urls'].split(";")
+    # Remove the redundant last empty string
+    remote_urls.pop()
         
-    # degas_urls = ['windmill.jpg','windmill.jpg']
-
-    failed_urls = []
-    fail_messages = []
-    local_urls = []
-    for image_name in degas_urls:
-        local_dest = tools.images.new_location()
-        try:
-            urllib.urlretrieve(image_name, local_dest)
-        #    tools.download_image(image_name, local_dest)
-            local_urls.append(local_dest)
-        except Exception as ex:
-            print 'Error::Saturn:: ' + ex.message
-            failed_urls.append(image_name)
-            fail_messages.append(ex.message)
-    # local_urls = [None, None]
-    
-    # If all downloads failed
-    if len(local_urls) == len(failed_urls):
-        data = {}
-        data['success'] = False
-        data['failed_images'] = failed_urls
-        data['fail_messages'] = fail_messages
-        return json.dumps(data)
-
     # Convert that image to an attr vec
-    attr_vec = olivia.get_attr_vec(local_urls[0])
-    # guess what's in the attr vec!
-    img_class, img_proba = classifier.guess(attr_vec)
+    image_vectors, failed_images, vec_success = olivia.get_all_attr_vecs(remote_urls)
 
+    # guess what's in the attr vec!
+    guesses, guess_success = classifier.guess(image_vectors)
 
     data = {}
-    if img_class == None:
+    if not guess_success:
         data['success'] = False
-        data['message'] = 'There are no classes in the system. Go to {domain}/features/{new_feature_name} to add some.'
+        data['message'] = 'There are not enough trained classes in the system. ' \
+                          'POST to {domain}/learn to train the system.'
     else:
-        data['success'] = True
-        data['class'] = img_class
-        data['proba'] = list(img_proba)
+        first_url = remote_urls[0]
+        if first_url in guesses.keys():
+            data['success'] = True
+            data['class'] = guesses[first_url]
+        else:
+            # if not in guesses, it must be in failed images
+            data['success'] = False
+            data['message'] = failed_images[first_url]
 
     return json.dumps(data)
 
