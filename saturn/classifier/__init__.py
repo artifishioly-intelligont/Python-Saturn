@@ -36,8 +36,10 @@ def learn(attr_vecs, true_classes):
 
     response = pinger.post_request(url, data)
     success = response['success']
+    ready_to_guess = response['ready']
+    message = response['message']
 
-    return success
+    return success, ready_to_guess, message
 
 
 def get_all_features():
