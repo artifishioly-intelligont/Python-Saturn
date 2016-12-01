@@ -21,9 +21,9 @@ classifier microservice, so it can learn
 def learn(attr_vecs, true_classes):
     url = hostname + "/learn"
     vectors = {'vectors' : attr_vecs}
-    feature = {'feature' : true_classes}
+    theme = {'theme' : true_classes}
     
-    return pinger.post_request(url, vectors, feature)
+    return pinger.post_request(url, vectors, theme)
     
 
 def get_all_features():
