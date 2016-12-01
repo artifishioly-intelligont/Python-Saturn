@@ -5,7 +5,7 @@ import classifier
 import olivia
 import tools
 import image as find
-import types
+import os
 
 from copy import deepcopy
 
@@ -262,8 +262,7 @@ guess(array(array(attribute vectors))
 '''
 @app.route('/find', methods=['POST'])
 def get_class():
-    '''
-
+    """
     :return:
     example (successful) return:
     {
@@ -273,7 +272,7 @@ def get_class():
             'url1' : [0.1, 0.0, 0.5, ...],
             'url2' : [0.9, 1.2, 0.6, ...]
         },
-        failed_images : []
+        failed_images : {}
     }
     example (failed) return:
     {
@@ -286,28 +285,53 @@ def get_class():
     {
         'url2' : 'DownloadException: The path 'url2' does not exist'
     }
-    '''
-    jsonData = request.get_json()
-    url_list = jsonData['urls']
-    type = jsonData['type']
+    """
+    # Ensure we are sent json
+    json_data = request.get_json()
+    if not json_data:
+        return json.dumps({'success': False, 'message': 'No JSON data was sent to the endpoint'})
 
     # Ensure the parameters exist
+    url_list = json_data['urls']
+    type = json_data['type']
     if not url_list:
         return json.dumps({'success': False, 'message': 'No URLs specified, add an array value with key \'urls\''})
     if not type:
         return json.dumps({'success': False, 'message': 'No search type specified, add a string value with key \'type\''})
 
-    # Get the vectorized images
+    # Ensure that the micro-services are running
+    if not os.system("ping -c 1 " + classifier.hostname):
+        return json.dumps({'success': False, 'message': 'The classifier at {} cannot be reached'.format(classifier.hostname)})
+
+    if not os.system("ping -c 1 " + olivia.hostname):
+        return json.dumps({'success': False, 'message': 'Olivia at {} cannot be reached'.format(olivia.hostname)})
+
+    # Get the image attribute vectors
     image_vectors, failed_images, success = find.send_to_olivia(url_list)
 
     output_classes = {}
-    if len(image_vectors) > 0:
-        # return {url : class} and remove the success criteria
-        image_classes_dict = find.send_to_classifier(image_vectors)
-        del image_classes_dict['success']
+    try:
 
-        # returns a dict where all values have the value 'type'
-        output_classes = find.type_class(type, image_classes_dict)
+        if len(image_vectors) > 0:
+            # return {url_n : class_n} and remove the success criteria
+            image_classes_dict = find.send_to_classifier(image_vectors)
+
+            # Remove the success entry as it is not a URL
+            del image_classes_dict['success']
+
+            # returns a dict where all values have the value 'type'
+            output_classes = find.type_class(type, image_classes_dict)
+
+    except Exception as e:
+        # Keep all the previous failed messages
+        # then append the new error messages to the ones that failed during the classification process
+        all_failed_images = dict(failed_images)
+        all_failed_images.update({url: e.message for url in image_vectors.keys()})
+
+        json.dumps({'success': False,
+                    'failed_images': all_failed_images,
+                    'image_classes': {}
+                    })
 
     return json.dumps({'success': len(failed_images) > 0,
                        'failed_images': failed_images,

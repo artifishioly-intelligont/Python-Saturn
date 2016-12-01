@@ -11,23 +11,22 @@ def send_to_olivia(url_list):
     # url to olivia's micro-service /convert success, image_vectors, failed_images]
     url = "http://localhost:5001/convert"
     data = {'urls' : url_list}
-    response = send_to_service(url, data)
+    response = pinger.post_request(url, data)
 
     return response['image_vectors'], response['failed_images'], response['success']
 
-
 def send_to_classifier(url_to_vector_dict):
     """
-    :param url_to_vector_dict:
+    :param url_to_vector_dict: e.g.
+    {
+     'http://url_A' : [1.0, 0.9, ... ,0.34],
+     'http://url_B' : [1.5, 0.7, ... ,0.46]
+    }
     :returns:
     """
     #send attributes of each tiles to the classifier
     url = "http://localhost:5002/guess"
-    return send_to_service(url, url_to_vector_dict)
-
-def send_to_service(service_url, data):
-    result = pinger.post_request(service_url, data)
-    return result
+    return pinger.post_request(url, {'vectors':url_to_vector_dict})
 
 
 def type_class(type, image_classes_dict):
