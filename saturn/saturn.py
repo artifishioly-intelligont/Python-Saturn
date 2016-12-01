@@ -35,49 +35,28 @@ def learn():
     print 'Log::Saturn::Message Recieved::/learn/'
 
     true_class = request.form['theme']
-    degas_urls = request.form['urls'].split(";")
+    remote_urls = request.form['urls'].split(";")
+    # Remove the redundant last empty string
+    remote_urls.pop()
 
-    # Remove the
-    degas_urls.pop()
+    # Convert that image to an attr vec
+    image_vectors, failed_images, vec_success = olivia.get_all_attr_vecs(remote_urls)
 
-    failed_urls = []
-    fail_messages = []
-    local_urls = []
-    attr_vecs = []
-    true_classes = []
-    for image_name in degas_urls:
-        local_dest = tools.images.new_location()
-        try:
-            urllib.urlretrieve(image_name, local_dest)
-        #    tools.download_image(image_name, local_dest)
-            local_urls.append(local_dest)
-        except Exception as ex:
-            print 'Error::Saturn:: ' + ex.message
-            failed_urls.append(image_name)
-            fail_messages.append(ex.message)
-    # local_urls = [None, None]
-
-    # If all downloads failed
-    if len(local_urls) == len(failed_urls):
-        data = {}
-        data['success'] = False
-        data['failed_images'] = failed_urls
-        data['fail_messages'] = fail_messages
-        return json.dumps(data)
-
-    for feature in local_urls:
-        attr_vec = deepcopy(olivia.get_attr_vec(local_dest))         
-        attr_vecs.append(attr_vec)
-        true_classes.append(true_class)
-        
-    classifier.learn(attr_vecs, true_classes)
+    # Learn the attribute vectors with the given class
+    true_classes = true_class*len(image_vectors)
+    learn_success, ready_to_guess, learn_message = classifier.learn(image_vectors, true_classes)
 
     data = {}
-    data['success'] = True
-    data['failed_images'] = failed_urls
-    data['fail_messages'] = fail_messages
+    data['success'] = learn_success
+    data['failed_images'] = failed_images
+    data['ready'] = ready_to_guess
 
+    if not learn_success:
+        data['message'] = 'There was an internal error: '+learn_message
+    else:
+        data['message'] = learn_message
     return json.dumps(data)
+
 
 """
 Endpoint to tell the user what class the image is guessed to belong to
@@ -89,7 +68,7 @@ Return: - class - The class that the img is believed to belong to
 """
 @app.route('/guess', methods=["POST"])
 def guess():
-    print 'Log::Saturn::Message Recieved::/guess/'
+    print 'Log::Saturn::Message Received::/guess/'
 
     remote_urls = request.form['urls'].split(";")
     # Remove the redundant last empty string
@@ -119,65 +98,6 @@ def guess():
     return json.dumps(data)
 
 
-"""
-Endpoint to tell the user what class the image is guessed to belong to
-
-Access: GET
-
-Return:	- class - The class that the img is believed to belong to
-
-"""
-@app.route('/guess2/<degas_img_name>')
-def guess2(degas_img_name):
-    print 'Log::Saturn::Message Recieved::/guess/' + degas_img_name
-
-    # Find somewhere to store the image
-    local_dest = tools.images.new_location()
-
-    # Store the image at local_dest
-    try:
-        tools.download_image(degas_img_name, local_dest)
-    except Exception as ex:
-        print 'Error::Saturn:: ' + ex.message
-
-        data = {}
-        data['success'] = False
-        data['message'] = ex.message
-        data['class'] = None
-
-        return  json.dumps(data)
-
-    # Convert that image to an attr vec
-    attr_vec = olivia.get_attr_vec(local_dest)
-    # guess what's in the attr vec!
-    img_class, img_proba = classifier.guess(attr_vec)
-
-
-    data = {}
-    if img_class == None:
-        data['success'] = False
-        data['message'] = 'There are no classes in the system. Go to {domain}/features/{new_feature_name} to add some.'
-    else:
-        data['success'] = True
-    data['class'] = img_class
-    data['probs'] = list(img_proba)
-
-    return json.dumps(data)
-
-"""
-An endpoint to ensure people use /guess correctly
-"""
-"""@app.route('/guess')
-def wrong_path_guess():
-    print 'Log::Saturn::Message Recieved::/guess/'
-    data = {}
-    data['success'] = False
-    data['message'] = 'Incorrect guess path usage. You should use: \'{domain}/guess/{dagus_img_url}\''
-    data['class'] = None
-
-    return json.dumps(data)
-
-"""
 """
 An endpoint used to fill the class drop down in the GUI
 
