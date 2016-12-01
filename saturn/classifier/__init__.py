@@ -1,41 +1,35 @@
-import SVM, table as Table
+from tools import pinger
 
+hostname = "http://localhost:5002"
 
-svm = SVM.SVM()
-#tab = Table.FeatureTable(0, 100, {100 : 'Pond', 200 : 'Tree', 300 : 'Park', 400 : 'Pathway', 500 : 'Road'})
-tab = Table.FeatureTable(0, 100, {100 : 'Building', 200 : 'House', 300 : 'Road', 400 : 'Tree'})
-
-def guess(attr_vec):
-    """
-    Guesses which class the sub-images belong to.
-
-    e.g. Given an image it could return 'tree'
-
-    :param attr_vec: The long list of numerical representations of the attributes extracted (by olivia module) of a sub-image
-    :return: The name of the class the classifier believes the sub-image belongs to
-    """
-    raw_preds, raw_probs = svm.predict([attr_vec])
+"""
+Sends a list of attribute vectors to the classifier microservice 
+to be classified
+"""
+def guess(attr_vecs):
+    url = hostname + "/guess"
+    vectors = {'vectors' : attr_vecs}
     
-    class_pred = tab.find_name(raw_preds[0])
-    prob = raw_probs[0][0]
-
-    print 'Log::Classifier:: predicts the class %s' % class_pred
-    print 'Log::Classifier:: probabilities:'
-    print prob
-    return class_pred, prob
-
+    return pinger.post_request(url, vectors)
+    
+    
+    
+"""
+Sends a list of attribute vectors and their true classes to the 
+classifier microservice, so it can learn
+"""
 def learn(attr_vecs, true_classes):
-    """
-    Forces the classifier to learn what class the sub-image belongs to.
+    url = hostname + "/learn"
+    vectors = {'vectors' : attr_vecs}
+    feature = {'feature' : true_classes}
+    
+    return pinger.post_request(url, vectors, feature)
+    
 
-    :param attr_vec: The long list of numerical representations of the attributes extracted (by olivia module) of a sub-image
-    :param true_class: The class that the sub-image belongs to
-    :return: None
-    """
-    true_class_ids = []
-    for name in true_classes:
-        true_class_ids.append(tab.find_id(name))
-
-    print 'Log::Classifier:: learning'
-
-    svm.learn(attr_vecs, true_class_ids)
+def get_all_features():
+    url = hostname + "/features"
+    pinger.get_request(url)
+    
+def add_new_feature(new_feature):
+    url = hostname + "/features/" + new_feature
+    pinger.get_request(url)
