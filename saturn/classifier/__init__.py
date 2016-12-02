@@ -14,11 +14,18 @@ def guess(attr_vecs):
     
     response = pinger.post_request(url, vectors)
 
-    success = response['success']
-    del response['success']
-    guesses = response
+    try:
+        success = response['success']
+        del response['success']
+        guesses = response
+        failed_images = {}
+    
+    except ConnectionError as ex:
+        success = False
+        guesses = {}
+        failed_images = {img_url: "Cannot establish a connection with Classifier at {} endpoint".format(url) for img_url in attr_vecs.keys()}
 
-    return guesses, success
+    return guesses, success, failed_images
     
     
     
@@ -34,12 +41,20 @@ def learn(attr_vecs, true_classes):
             'theme': true_classes
         }
 
-    response = pinger.post_request(url, data)
-    success = response['success']
-    ready_to_guess = response['ready']
-    message = response['message']
+    try:
+        response = pinger.post_request(url, data)
+        success = response['success']
+        ready_to_guess = response['ready']
+        message = response['message']
+        failed_images = {}
+        
+    except ConnectionError as ex:
+        success = False
+        ready_to_guess = False
+        message = "Cannot establish a connection with Classifier at {} endpoint".format(url)
+        failed_images = {img_url: "Cannot establish a connection with Classifier at {} endpoint".format(url) for img_url in attr_vecs.keys()}
 
-    return success, ready_to_guess, message
+    return success, ready_to_guess, message, failed_images
 
 
 def get_all_features():
