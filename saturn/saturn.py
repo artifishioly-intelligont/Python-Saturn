@@ -217,7 +217,7 @@ def get_class():
     image_vectors, failed_images, success = olivia.get_all_attr_vecs(url_list)
     
     all_failed_images = dict(failed_images)
-    output_classes = {}
+    matching_urls = {}
     try:
         if len(image_vectors) > 0:
             # return {url_n : class_n} and remove the success criteria
@@ -225,7 +225,8 @@ def get_class():
             all_failed_images.update(failed_classifications)
 
             # returns a dict where all values have the value 'type'
-            output_classes = {url: type for url in image_classes_dict.keys() if image_classes_dict[url] == type}
+            matching_urls = {url: type for url in image_classes_dict.keys() if image_classes_dict[url] == type}
+            unmatching_urls = {url: type for url in image_classes_dict.keys() if image_classes_dict[url] != type}
 
     except Exception as e:
         # Keep all the previous failed messages
@@ -234,12 +235,15 @@ def get_class():
         
         return json.dumps({'success': False,
                     'failed_images': all_failed_images,
-                    'image_classes': {}
+                    'matching_urls': {},
+                    'unmatching_urls':{}
                     })
 
     return json.dumps({'success': len(all_failed_images) > 0,
                        'failed_images': all_failed_images,
-                       'image_classes': output_classes})
+                       'matching_urls': matching_urls,
+                       'unmatching_urls': unmatching_urls
+                       })
 
 
 if __name__ == '__main__':
