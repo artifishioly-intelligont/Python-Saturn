@@ -108,7 +108,7 @@ Return:	- classes - An array of strings (classes)
 @app.route('/features')
 def get_all_features():
     print 'Log::Saturn::Message Recieved::/features/'
-    features_name_list = tab.find_all_features()
+    features_name_list, success = classifier.get_all_features()
     data = {}
 
     if len(features_name_list) > 0:
@@ -130,15 +130,11 @@ Return: ??success or failure??
 @app.route('/features/<new_feature>')
 def add_new_feature(new_feature):
     print 'Log::Saturn::Message Recieved::/features/<new_feature>'
-    msg = tab.add_feature(new_feature)
+    success, msg = classifier.add_new_feature(new_feature)
     data = {}
 
-    if msg:
-        data['success'] = True
-        data['feature'] = new_feature + ' recorded'
-    else:
-        data['success'] = False
-        data['feature'] = 'Feature already exit'
+    data['success'] = success
+    data['message'] = msg
 
     return json.dumps(data)
 

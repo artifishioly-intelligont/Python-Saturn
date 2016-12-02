@@ -11,4 +11,4 @@ def post_request(url, payload):
 def get_request(url):
     r = requests.get(url)
     print(r.url)
-    return r.text
+    return r.json()
