@@ -139,7 +139,7 @@ Return: ??success or failure??
 @app.route('/features/<new_feature>')
 def add_new_feature(new_feature):
     print 'Log::Saturn::Message Recieved::/features/<new_feature>'
-    success, msg = classifier.add_new_feature(new_feature)
+    success, msg = classifier.add_new_feature(new_feature.lower())
     data = {}
 
     data['success'] = success
@@ -186,38 +186,13 @@ def get_class():
     }
     """
     
-    """
-    # Ensure we are sent json
-    json_data = request.get_json()
-    if not json_data:
-        return json.dumps({'success': False, 'message': 'No JSON data was sent to the endpoint'})
-
-    # Ensure the parameters exist
-    url_list = json_data['urls']
-    type = json_data['theme']  # e.g. pong, tree, etc
-    if not url_list:
-        return json.dumps({'success': False, 'message': 'No URLs specified, add an array value with key \'urls\''})
-    if not type:
-        return json.dumps({'success': False, 'message': 'No search type specified, add a string value with key \'type\''})
-
-    # Ensure that the micro-services are running
-    classifier_reached = os.system("ping -c 1 " + classifier.hostname) == 0
-    if not classifier_reached:
-        return json.dumps({'success': False, 'message': 'The classifier at {} cannot be reached'.format(classifier.hostname)})
-
-    olivia_reached = os.system("ping -c 1 " + olivia.hostname) == 0
-    if not olivia_reached:
-        return json.dumps({'success': False, 'message': 'Olivia at {} cannot be reached'.format(olivia.hostname)})
-    """
-    
-    
     if 'urls' in request.form.keys():
         url_list = request.form['urls'].split(';')
     else:
         return json.dumps ({'success': False, 'message': 'No URLs specified, add a string separated by colons with key \'urls\''})
         
     if 'theme' in request.form.keys():
-        type = request.form['theme']
+        type = request.form['theme'].lower()
     else:
         return json.dumps({'success': False, 'message': 'No search type specified, add a string value with key \'type\''})
         
