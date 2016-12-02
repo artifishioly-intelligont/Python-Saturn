@@ -201,6 +201,7 @@ def get_class():
     
     all_failed_images = dict(failed_images)
     matching_urls = {}
+    unmatching_urls = {}
     try:
         if len(image_vectors) > 0:
             # return {url_n : class_n} and remove the success criteria
