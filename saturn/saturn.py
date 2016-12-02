@@ -210,9 +210,17 @@ def get_class():
         return json.dumps({'success': False, 'message': 'Olivia at {} cannot be reached'.format(olivia.hostname)})
     """
     
-    url_list = request.form['urls'].split(';')
-    type = request.form['theme']
-
+    
+    if 'urls' in request.form.keys():
+        url_list = request.form['urls'].split(';')
+    else:
+        return json.dumps ({'success': False, 'message': 'No URLs specified, add a string separated by colons with key \'urls\''})
+        
+    if 'theme' in request.form.keys():
+        type = request.form['theme']
+    else:
+        return json.dumps({'success': False, 'message': 'No search type specified, add a string value with key \'type\''})
+        
     # Get the image attribute vectors
     image_vectors, failed_images, success = olivia.get_all_attr_vecs(url_list)
     
