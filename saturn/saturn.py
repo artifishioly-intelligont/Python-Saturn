@@ -185,6 +185,8 @@ def get_class():
         'url2' : 'DownloadException: The path 'url2' does not exist'
     }
     """
+    
+    """
     # Ensure we are sent json
     json_data = request.get_json()
     if not json_data:
@@ -206,36 +208,37 @@ def get_class():
     olivia_reached = os.system("ping -c 1 " + olivia.hostname) == 0
     if not olivia_reached:
         return json.dumps({'success': False, 'message': 'Olivia at {} cannot be reached'.format(olivia.hostname)})
+    """
+    
+    url_list = request.form['urls'].split(';')
+    type = request.form['theme']
 
     # Get the image attribute vectors
-    image_vectors, failed_images, success = find.send_to_olivia(url_list)
-
+    image_vectors, failed_images, success = olivia.get_all_attr_vecs(url_list)
+    
+    all_failed_images = dict(failed_images)
     output_classes = {}
     try:
-
         if len(image_vectors) > 0:
             # return {url_n : class_n} and remove the success criteria
-            image_classes_dict = find.send_to_classifier(image_vectors)
-
-            # Remove the success entry as it is not a URL
-            del image_classes_dict['success']
+            image_classes_dict, success, failed_classifications = classifier.guess(image_vectors)
+            all_failed_images.update(failed_classifications)
 
             # returns a dict where all values have the value 'type'
-            output_classes = find.type_class(type, image_classes_dict)
+            output_classes = {url: type for url in image_classes_dict.keys() if image_classes_dict[url] == type}
 
     except Exception as e:
         # Keep all the previous failed messages
-        # then append the new error messages to the ones that failed during the classification process
-        all_failed_images = dict(failed_images)
+        # then append the new error messages to the ones that failed during the classification process        
         all_failed_images.update({url: e.message for url in image_vectors.keys()})
-
-        json.dumps({'success': False,
+        
+        return json.dumps({'success': False,
                     'failed_images': all_failed_images,
                     'image_classes': {}
                     })
 
-    return json.dumps({'success': len(failed_images) > 0,
-                       'failed_images': failed_images,
+    return json.dumps({'success': len(all_failed_images) > 0,
+                       'failed_images': all_failed_images,
                        'image_classes': output_classes})
 
 
