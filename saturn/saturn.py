@@ -194,10 +194,12 @@ def get_class():
         return json.dumps({'success': False, 'message': 'No search type specified, add a string value with key \'type\''})
 
     # Ensure that the micro-services are running
-    if not os.system("ping -c 1 " + classifier.hostname):
+    classifier_reached = os.system("ping -c 1 " + classifier.hostname) == 0
+    if not classifier_reached:
         return json.dumps({'success': False, 'message': 'The classifier at {} cannot be reached'.format(classifier.hostname)})
 
-    if not os.system("ping -c 1 " + olivia.hostname):
+    olivia_reached = os.system("ping -c 1 " + olivia.hostname) == 0
+    if not olivia_reached:
         return json.dumps({'success': False, 'message': 'Olivia at {} cannot be reached'.format(olivia.hostname)})
 
     # Get the image attribute vectors
