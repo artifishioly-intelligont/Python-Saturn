@@ -81,13 +81,16 @@ def guess():
     guesses, guess_success, failed_classifications = classifier.guess(image_vectors)
     failed_images.update(failed_classifications)
 
+    first_url = remote_urls[0]
     data = {}
     if not guess_success:
         data['success'] = False
-        data['message'] = 'There are not enough trained classes in the system. ' \
-                          'POST to {domain}/learn to train the system.'
+        if first_url in failed_images.keys():
+            data['message'] = failed_images[first_url]
+        else:
+            data['message'] = 'There are not enough trained classes in the system. ' \
+                          'POST to {}/learn to train the system.'.format(classifier.hostname)
     else:
-        first_url = remote_urls[0]
         if first_url in guesses.keys():
             data['success'] = True
             data['class'] = guesses[first_url]
