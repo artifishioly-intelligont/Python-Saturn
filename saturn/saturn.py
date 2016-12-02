@@ -226,7 +226,7 @@ def get_class():
 
             # returns a dict where all values have the value 'type'
             matching_urls = {url: type for url in image_classes_dict.keys() if image_classes_dict[url] == type}
-            unmatching_urls = {url: type for url in image_classes_dict.keys() if image_classes_dict[url] != type}
+            unmatching_urls = {url: feature_type for url, feature_type in image_classes_dict.items() if feature_type != type}
 
     except Exception as e:
         # Keep all the previous failed messages
