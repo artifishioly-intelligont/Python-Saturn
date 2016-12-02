@@ -1,4 +1,5 @@
 from tools import pinger
+from requests.exceptions import ConnectionError, ConnectTimeout
 
 hostname = "http://localhost:5002"
 
@@ -44,19 +45,27 @@ def learn(attr_vecs, true_classes):
 
 def get_all_features():
     url = hostname + "/features"
-    response = pinger.get_request(url)
+    try:
+        response = pinger.get_request(url)
+        all_features = response['features']
+        success = response['success']
 
-    all_features = response['features']
-    success = response['success']
+    except (ConnectTimeout, ConnectionError) as ex:
+        all_features = {}
+        success = False
 
     return all_features, success
 
     
 def add_new_feature(new_feature):
     url = hostname + "/features/" + new_feature
-    response = pinger.get_request(url)
+    try:
+        response = pinger.get_request(url)
+        success = response['success']
+        message = response['message']
 
-    success = response['success']
-    message = response['message']
+    except ConnectTimeout as ex:
+        message = "Connection with classifier timed out at {} endpoint".format(url)
+        success = False
 
     return success, message
