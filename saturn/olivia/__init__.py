@@ -19,11 +19,11 @@ def get_all_attr_vecs(remote_image_locs):
 
     except ConnectTimeout as ex:
         image_vectors = {}
-        failed_images = {url: "Timeout to connection with Olivia at {} endpoint".format(hostname) for url in remote_image_locs}
+        failed_images = {url: "Timeout to connection with Olivia at {} endpoint".format(url) for url in remote_image_locs}
         success = False
     except ConnectionError as ex:
         image_vectors = {}
-        failed_images = {url: "Cannot establish a connection with Olivia at {} endpoint".format(hostname) for url in remote_image_locs}
+        failed_images = {url: "Cannot establish a connection with Olivia at {} endpoint".format(url) for url in remote_image_locs}
         success = False
 
     return image_vectors, failed_images, success
