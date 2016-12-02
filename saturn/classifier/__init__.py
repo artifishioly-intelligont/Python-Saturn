@@ -65,7 +65,7 @@ def add_new_feature(new_feature):
         message = response['message']
 
     except ConnectTimeout as ex:
-        message = "Connection with classifier timed out at {} endpoint".format(url)
+        message = "Connection with classifier timed out at {}".format(hostname)
         success = False
 
     return success, message
