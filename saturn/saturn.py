@@ -43,7 +43,8 @@ def learn():
 
     # Learn the attribute vectors with the given class
     true_classes = true_class*len(image_vectors)
-    learn_success, ready_to_guess, learn_message = classifier.learn(image_vectors, true_classes)
+    learn_success, ready_to_guess, learn_message, failed_classifications = classifier.learn(image_vectors, true_classes)
+    failed_images.update(failed_classifications)
 
     data = {}
     data['success'] = learn_success
@@ -77,7 +78,8 @@ def guess():
     image_vectors, failed_images, vec_success = olivia.get_all_attr_vecs(remote_urls)
 
     # guess what's in the attr vec!
-    guesses, guess_success = classifier.guess(image_vectors)
+    guesses, guess_success, failed_classifications = classifier.guess(image_vectors)
+    failed_images.update(failed_classifications)
 
     data = {}
     if not guess_success:
@@ -107,15 +109,20 @@ Return:	- classes - An array of strings (classes)
 @app.route('/features')
 def get_all_features():
     print 'Log::Saturn::Message Recieved::/features/'
-    features_name_list, success = classifier.get_all_features()
-    data = {}
+    features_name_list, success, message = classifier.get_all_features()
+    data = {'message': ""}
 
     if len(features_name_list) > 0:
         data['success'] = True
         data['features'] = features_name_list
+
     else:
+        if not success:
+            data['message'] = message
+        else:
+            data['message'] = "No Features recorded"
         data['success'] = False
-        data['features'] = 'No Feature Recorded.'
+        data['features'] = []
 
     return json.dumps(data)
 

@@ -49,12 +49,14 @@ def get_all_features():
         response = pinger.get_request(url)
         all_features = response['features']
         success = response['success']
+        message = ""
 
     except (ConnectTimeout, ConnectionError) as ex:
         all_features = {}
         success = False
+        message = "Failed to establish connection to {}".format(hostname)
 
-    return all_features, success
+    return all_features, success, message
 
     
 def add_new_feature(new_feature):
