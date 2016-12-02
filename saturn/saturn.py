@@ -1,15 +1,13 @@
 from flask import Flask, request
 import json
-import urllib
 import classifier
 import olivia
-import tools
 import image as find
 import os
 
-from copy import deepcopy
 
 app = Flask('Saturn')
+
 
 @app.route('/')
 def index():
@@ -40,6 +38,7 @@ def learn():
     remote_urls.pop()
 
     # Convert that image to an attr vec
+
     image_vectors, failed_images, vec_success = olivia.get_all_attr_vecs(remote_urls)
 
     # Learn the attribute vectors with the given class
