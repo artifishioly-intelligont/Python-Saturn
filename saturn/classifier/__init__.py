@@ -13,9 +13,10 @@ def guess(attr_vecs):
     url = hostname + "/guess"
     vectors = {'vectors' : attr_vecs}
     
-    response = pinger.post_request(url, vectors)
 
     try:
+        response = pinger.post_request(url, vectors)
+
         success = response['success']
         del response['success']
         guesses = response
@@ -28,7 +29,7 @@ def guess(attr_vecs):
 
     return guesses, success, failed_images
     
-    
+
     
 """
 Sends a list of attribute vectors and their true classes to the 
