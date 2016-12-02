@@ -139,7 +139,7 @@ Return: ??success or failure??
 @app.route('/features/<new_feature>')
 def add_new_feature(new_feature):
     print 'Log::Saturn::Message Recieved::/features/<new_feature>'
-    success, msg = classifier.add_new_feature(new_feature)
+    success, msg = classifier.add_new_feature(new_feature.lower())
     data = {}
 
     data['success'] = success
@@ -185,33 +185,8 @@ def get_class():
         'url2' : 'DownloadException: The path 'url2' does not exist'
     }
     """
-    
-    """
-    # Ensure we are sent json
-    json_data = request.get_json()
-    if not json_data:
-        return json.dumps({'success': False, 'message': 'No JSON data was sent to the endpoint'})
-
-    # Ensure the parameters exist
-    url_list = json_data['urls']
-    type = json_data['theme']  # e.g. pong, tree, etc
-    if not url_list:
-        return json.dumps({'success': False, 'message': 'No URLs specified, add an array value with key \'urls\''})
-    if not type:
-        return json.dumps({'success': False, 'message': 'No search type specified, add a string value with key \'type\''})
-
-    # Ensure that the micro-services are running
-    classifier_reached = os.system("ping -c 1 " + classifier.hostname) == 0
-    if not classifier_reached:
-        return json.dumps({'success': False, 'message': 'The classifier at {} cannot be reached'.format(classifier.hostname)})
-
-    olivia_reached = os.system("ping -c 1 " + olivia.hostname) == 0
-    if not olivia_reached:
-        return json.dumps({'success': False, 'message': 'Olivia at {} cannot be reached'.format(olivia.hostname)})
-    """
-    
     url_list = request.form['urls'].split(';')
-    type = request.form['theme']
+    type = request.form['theme'].lower()
 
     # Get the image attribute vectors
     image_vectors, failed_images, success = olivia.get_all_attr_vecs(url_list)
