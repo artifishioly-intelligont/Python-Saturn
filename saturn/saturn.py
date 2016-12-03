@@ -26,7 +26,9 @@ Access: POST
 Fields: - img_names - Where the image is stored
         - class - What class the img really belongs to
 
-Return: - ??success or fail??
+Return: - success - success or fail
+        - failed_images - a list of images that couldn't be vectorized or classified
+        - ready - if the SVM is ready to predict classes
 """
 @app.route('/learn', methods=["POST"])
 def learn():
@@ -57,6 +59,60 @@ def learn():
         data['message'] = learn_message
     return json.dumps(data)
 
+"""
+The endpoint used to correct the classifier after it guesses incorrectly
+
+Access: POST
+Fields: - img_names - Where the image is stored
+        - classes - What classes the images really belong to
+
+Return: - ??success or fail??
+"""
+@app.route('/correct', methods=["POST"])
+def correct():
+    print 'Log::Saturn::Message Recieved::/correct'
+
+    # *** One possible implementation... ***
+    #corrections = request.form['corrections']
+    #remote_urls = corrections.keys()
+    #true_classes = corrections.values()
+    
+    # *** A potentially easier one ***
+    true_classes = request.form['themes'].split(";")
+    remote_urls = request.form['urls'].split(";")
+    # Remove the redundant last empty string
+    true_classes.pop()
+    remote_urls.pop()
+    
+    # Learn won't work if the length of the two lists aren't the same, so return with an error message
+    if len(true_classes) != len(remote_urls):
+        data['success'] = False
+        data['failed_images'] = remote_urls
+        data['ready'] = False
+        data['message'] = "Length miss-match between lists of URLs and True Classes provided"
+        return json.dumps(data)
+    
+    # Convert that image to an attr vec
+    image_vectors, failed_images, vec_success = olivia.get_all_attr_vecs(remote_urls)
+    
+    # Remove all the failed images from true_classes
+    for failed_img in failed_images:
+        del true_classes[remote_urls.index(failed_img)]
+
+    # Learn the attribute vectors with the given class
+    learn_success, ready_to_guess, learn_message, failed_classifications = classifier.learn(image_vectors, true_classes)
+    failed_images.update(failed_classifications)
+
+    data = {}
+    data['success'] = learn_success
+    data['failed_images'] = failed_images
+    data['ready'] = ready_to_guess
+
+    if not learn_success:
+        data['message'] = 'There was an internal error: '+learn_message
+    else:
+        data['message'] = learn_message
+    return json.dumps(data)
 
 """
 Endpoint to tell the user what class the image is guessed to belong to
