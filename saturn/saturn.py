@@ -42,7 +42,7 @@ def learn():
     image_vectors, failed_images, vec_success = olivia.get_all_attr_vecs(remote_urls)
 
     # Learn the attribute vectors with the given class
-    true_classes = true_class*len(image_vectors)
+    true_classes = [true_class]*len(image_vectors)
     learn_success, ready_to_guess, learn_message, failed_classifications = classifier.learn(image_vectors, true_classes)
     failed_images.update(failed_classifications)
 
