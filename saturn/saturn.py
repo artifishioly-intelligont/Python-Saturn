@@ -2,7 +2,7 @@ from flask import Flask, request
 import json
 import classifier
 import olivia
-import image as find
+import discover
 import os
 
 
@@ -85,6 +85,7 @@ def correct():
     remote_urls.pop()
     
     # Learn won't work if the length of the two lists aren't the same, so return with an error message
+    data = {}
     if len(true_classes) != len(remote_urls):
         data['success'] = False
         data['failed_images'] = remote_urls
@@ -261,12 +262,14 @@ def get_class():
     try:
         if len(image_vectors) > 0:
             # return {url_n : class_n} and remove the success criteria
-            image_classes_dict, success, failed_classifications = classifier.guess(image_vectors)
-            all_failed_images.update(failed_classifications)
+            image_direction_classes_dict, success, failed_classifications_directions = classifier.guess(image_vectors)
+            all_failed_images.update(discover.condense_error_paths(failed_classifications_directions))
+
+            image_class_probs = discover.condense_and_determine_probs(image_direction_classes_dict)
 
             # returns a dict where all values have the value 'type'
-            matching_urls = {url: type for url in image_classes_dict.keys() if image_classes_dict[url] == type}
-            unmatching_urls = {url: feature_type for url, feature_type in image_classes_dict.items() if feature_type != type}
+            matching_urls = {url: image_class_probs[url] for url in image_class_probs.keys() if discover.isMostLikelyFeature(type)}
+            unmatching_urls = {url: image_class_probs[url] for url in image_class_probs.keys() if not discover.isMostLikelyFeature(type)}
 
     except Exception as e:
         # Keep all the previous failed messages

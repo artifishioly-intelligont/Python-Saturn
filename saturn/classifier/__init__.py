@@ -28,7 +28,8 @@ def guess(attr_vecs):
         failed_images = {img_url: "Cannot establish a connection with Classifier at {} endpoint".format(url) for img_url in attr_vecs.keys()}
 
     return guesses, success, failed_images
-    
+
+
 
     
 """
