@@ -1,14 +1,13 @@
 from flask import Flask, request
 import json
-
 import classifier
 import olivia
-import tools
+import image as find
+import os
+
 
 app = Flask('Saturn')
 
-#creating table
-tab = classifier.tab
 
 @app.route('/')
 def index():
@@ -20,118 +19,142 @@ def index():
            '\t/features/ -- List All    features<br>' \
            '\t/features/{new_feature} -- Add the new feature<br>'
 
-
 """
 The endpoint used to teach the classifier.
 
 Access: POST
-Fields:	- img_names - Where the image is stored
-	    - class - What class the img really belongs to
+Fields: - img_names - Where the image is stored
+        - class - What class the img really belongs to
 
-Return: - ??success or fail??
+Return: - success - success or fail
+        - failed_images - a list of images that couldn't be vectorized or classified
+        - ready - if the SVM is ready to predict classes
 """
-@app.route('/learn')
+@app.route('/learn', methods=["POST"])
 def learn():
     print 'Log::Saturn::Message Recieved::/learn/'
 
-    # Stub values
-    if request.method == 'POST':
-        true_class = request.form['theme']
-        degas_urls = request.form['urls']
+    true_class = request.form['theme']
+    remote_urls = request.form['urls'].split(";")
+    # Remove the redundant last empty string
+    remote_urls.pop()
 
-    # De-comment for manual testing
-    # urls = ['windmill.jpg','windmill.jpg']
-    # true_class = classifier.tab.find_all_features()[0]
+    # Convert that image to an attr vec
 
-    failed_urls = []
-    fail_messages = []
-    local_urls = []
-    for image_name in degas_urls:
-        local_dest = tools.images.new_location()
-        try:
-            tools.download_image(image_name, local_dest)
-            local_urls.append(local_dest)
-        except Exception as ex:
-            print 'Error::Saturn:: ' + ex.message
-            failed_urls.append(image_name)
-            fail_messages.append(ex.message)
+    image_vectors, failed_images, vec_success = olivia.get_all_attr_vecs(remote_urls)
 
-    local_urls = [None, None]
-
-    # If all downloads failed
-    if len(local_urls) == len(failed_urls):
-        data = {}
-        data['success'] = False
-        data['failed_images'] = failed_urls
-        data['fail_messages'] = fail_messages
-        return json.dumps(data)
-
-    for feature in local_urls:
-        attr_vec = olivia.get_attr_vec(feature)
-        classifier.learn(attr_vec, true_class)
+    # Learn the attribute vectors with the given class
+    true_classes = [true_class]*len(image_vectors)
+    learn_success, ready_to_guess, learn_message, failed_classifications = classifier.learn(image_vectors, true_classes)
+    failed_images.update(failed_classifications)
 
     data = {}
-    data['success'] = True
-    data['failed_images'] = failed_urls
-    data['fail_messages'] = fail_messages
+    data['success'] = learn_success
+    data['failed_images'] = failed_images
+    data['ready'] = ready_to_guess
 
+    if not learn_success:
+        data['message'] = 'There was an internal error: '+learn_message
+    else:
+        data['message'] = learn_message
     return json.dumps(data)
 
+"""
+The endpoint used to correct the classifier after it guesses incorrectly
+
+Access: POST
+Fields: - img_names - Where the image is stored
+        - classes - What classes the images really belong to
+
+Return: - ??success or fail??
+"""
+@app.route('/correct', methods=["POST"])
+def correct():
+    print 'Log::Saturn::Message Recieved::/correct'
+
+    # *** One possible implementation... ***
+    #corrections = request.form['corrections']
+    #remote_urls = corrections.keys()
+    #true_classes = corrections.values()
+    
+    # *** A potentially easier one ***
+    true_classes = request.form['themes'].split(";")
+    remote_urls = request.form['urls'].split(";")
+    # Remove the redundant last empty string
+    true_classes.pop()
+    remote_urls.pop()
+    
+    # Learn won't work if the length of the two lists aren't the same, so return with an error message
+    if len(true_classes) != len(remote_urls):
+        data['success'] = False
+        data['failed_images'] = remote_urls
+        data['ready'] = False
+        data['message'] = "Length miss-match between lists of URLs and True Classes provided"
+        return json.dumps(data)
+    
+    # Convert that image to an attr vec
+    image_vectors, failed_images, vec_success = olivia.get_all_attr_vecs(remote_urls)
+    
+    # Remove all the failed images from true_classes
+    for failed_img in failed_images:
+        del true_classes[remote_urls.index(failed_img)]
+
+    # Learn the attribute vectors with the given class
+    learn_success, ready_to_guess, learn_message, failed_classifications = classifier.learn(image_vectors, true_classes)
+    failed_images.update(failed_classifications)
+
+    data = {}
+    data['success'] = learn_success
+    data['failed_images'] = failed_images
+    data['ready'] = ready_to_guess
+
+    if not learn_success:
+        data['message'] = 'There was an internal error: '+learn_message
+    else:
+        data['message'] = learn_message
+    return json.dumps(data)
 
 """
 Endpoint to tell the user what class the image is guessed to belong to
 
-Access: GET
+Access: POST
 
-Return:	- class - The class that the img is believed to belong to
+Return: - class - The class that the img is believed to belong to
 
 """
-@app.route('/guess/<degas_img_name>')
-def guess(degas_img_name):
-    print 'Log::Saturn::Message Recieved::/guess/' + degas_img_name
+@app.route('/guess', methods=["POST"])
+def guess():
+    print 'Log::Saturn::Message Received::/guess/'
 
-    # Find somewhere to store the image
-    local_dest = tools.images.new_location()
-
-    # Store the image at local_dest
-    try:
-        tools.download_image(degas_img_name, local_dest)
-    except Exception as ex:
-        print 'Error::Saturn:: ' + ex.message
-
-        data = {}
-        data['success'] = False
-        data['message'] = ex.message
-        data['class'] = None
-
-        return  json.dumps(data)
-
+    remote_urls = request.form['urls'].split(";")
+    # Remove the redundant last empty string
+    remote_urls.pop()
+        
     # Convert that image to an attr vec
-    attr_vec = olivia.get_attr_vec(local_dest)
+    image_vectors, failed_images, vec_success = olivia.get_all_attr_vecs(remote_urls)
+
     # guess what's in the attr vec!
-    img_class = classifier.guess(attr_vec)
+    guesses, guess_success, failed_classifications = classifier.guess(image_vectors)
+    failed_images.update(failed_classifications)
 
-
+    first_url = remote_urls[0]
     data = {}
-    if img_class == None:
+    if not guess_success:
         data['success'] = False
-        data['message'] = 'There are no classes in the system. Go to {domain}/features/{new_feature_name} to add some.'
+        if first_url in failed_images.keys():
+            data['message'] = failed_images[first_url]
+        else:
+            data['message'] = 'There are not enough trained classes in the system. ' \
+                          'POST to {}/learn to train the system.'.format(classifier.hostname)
     else:
-        data['success'] = True
-    data['class'] = img_class
+        if first_url in guesses.keys():
+            data['success'] = True
+            data['class'] = guesses[first_url]
+        else:
+            # if not in guesses, it must be in failed images
+            data['success'] = False
+            data['message'] = failed_images[first_url]
 
-    return json.dumps(data)
-
-"""
-An endpoint to ensure people use /guess correctly
-"""
-@app.route('/guess')
-def wrong_path_guess():
-    print 'Log::Saturn::Message Recieved::/guess/'
-    data = {}
-    data['success'] = False
-    data['message'] = 'Incorrect guess path usage. You should use: \'{domain}/guess/{dagus_img_url}\''
-    data['class'] = None
     return json.dumps(data)
 
 
@@ -145,15 +168,20 @@ Return:	- classes - An array of strings (classes)
 @app.route('/features')
 def get_all_features():
     print 'Log::Saturn::Message Recieved::/features/'
-    features_name_list = tab.find_all_features()
-    data = {}
+    features_name_list, success, message = classifier.get_all_features()
+    data = {'message': ""}
 
     if len(features_name_list) > 0:
         data['success'] = True
         data['features'] = features_name_list
+
     else:
+        if not success:
+            data['message'] = message
+        else:
+            data['message'] = "No Features recorded"
         data['success'] = False
-        data['features'] = 'No Feature Recorded.'
+        data['features'] = []
 
     return json.dumps(data)
 
@@ -167,17 +195,96 @@ Return: ??success or failure??
 @app.route('/features/<new_feature>')
 def add_new_feature(new_feature):
     print 'Log::Saturn::Message Recieved::/features/<new_feature>'
-    msg = tab.add_feature(new_feature)
+    success, msg = classifier.add_new_feature(new_feature.lower())
     data = {}
 
-    if msg:
-        data['success'] = True
-        data['feature'] = new_feature + ' recorded'
-    else:
-        data['success'] = False
-        data['feature'] = 'Feature already exit'
+    data['success'] = success
+    data['message'] = msg
 
     return json.dumps(data)
+
+'''
+gets url list as input
+send the url list to oliva's microservice and gets attribute vector in return
+sends the attribute vector to classifier and get the class
+use that class to send the respective url to the frontend
+
+classifier
+learn(array(array(attribute vectors)), array(class_ids))
+
+guess(array(array(attribute vectors))
+--> returns array(class_names)
+'''
+@app.route('/find', methods=['POST'])
+def get_class():
+    """
+    :return:
+    example (successful) return:
+    {
+        success : True,
+        image_classes :
+        {
+            'url1' : [0.1, 0.0, 0.5, ...],
+            'url2' : [0.9, 1.2, 0.6, ...]
+        },
+        failed_images : {}
+    }
+    example (failed) return:
+    {
+    success : False,
+    image_classes :
+    {
+        'url1' : [0.1, 0.0, 0.5, ...]
+    },
+    failed_images :
+    {
+        'url2' : 'DownloadException: The path 'url2' does not exist'
+    }
+    """
+    
+    if 'urls' in request.form.keys():
+        url_list = request.form['urls'].split(';')
+    else:
+        return json.dumps ({'success': False, 'message': 'No URLs specified, add a string separated by colons with key \'urls\''})
+        
+    if 'theme' in request.form.keys():
+        type = request.form['theme'].lower()
+    else:
+        return json.dumps({'success': False, 'message': 'No search type specified, add a string value with key \'type\''})
+        
+    # Get the image attribute vectors
+    image_vectors, failed_images, success = olivia.get_all_attr_vecs(url_list)
+    
+    all_failed_images = dict(failed_images)
+    matching_urls = {}
+    unmatching_urls = {}
+    try:
+        if len(image_vectors) > 0:
+            # return {url_n : class_n} and remove the success criteria
+            image_classes_dict, success, failed_classifications = classifier.guess(image_vectors)
+            all_failed_images.update(failed_classifications)
+
+            # returns a dict where all values have the value 'type'
+            matching_urls = {url: type for url in image_classes_dict.keys() if image_classes_dict[url] == type}
+            unmatching_urls = {url: feature_type for url, feature_type in image_classes_dict.items() if feature_type != type}
+
+    except Exception as e:
+        # Keep all the previous failed messages
+        # then append the new error messages to the ones that failed during the classification process        
+        all_failed_images.update({url: e.message for url in image_vectors.keys()})
+        
+        return json.dumps({'success': False,
+                    'failed_images': all_failed_images,
+                    'matching_urls': {},
+                    'unmatching_urls':{}
+                    })
+
+    return json.dumps({'success': len(all_failed_images) > 0,
+                       'failed_images': all_failed_images,
+                       'matching_urls': matching_urls,
+                       'unmatching_urls': unmatching_urls
+                       })
+
 
 if __name__ == '__main__':
     print 'Log::Saturn:: Starting server'

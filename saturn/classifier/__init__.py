@@ -1,35 +1,89 @@
-import Perceptron, table as Table
+from tools import pinger
+from requests.exceptions import ConnectionError, ConnectTimeout
 
-perceptron = Perceptron.Perceptron(1024)
-tab = Table.FeatureTable(0, 100, {100 : 'Pond', 200 : 'Tree', 300 : 'Park', 400 : 'Pathway'})
+hostname = "http://localhost:5002"
 
-def guess(attr_vec):
-    """
-    Guesses which class the sub-image belongs to.
+"""
+Sends a list of attribute vectors to the classifier microservice 
+to be classified
 
-    e.g. Given an image it could return 'tree'
+:param: attr_vecs: A dictionary of string remote_url to a double array, the attribute vector for that image
+"""
+def guess(attr_vecs):
+    url = hostname + "/guess"
+    vectors = {'vectors' : attr_vecs}
+    
 
-    :param attr_vec: The long list of numerical representations of the attributes extracted (by olivia module) of a sub-image
-    :return: The name of the class the classifier believes the sub-image belongs to
-    """
-    print 'Debug::Classifier:: %s' % str(attr_vec)
-    raw_pred = perceptron.predict(attr_vec)
-    pred_class = tab.find_name(raw_pred)
+    try:
+        response = pinger.post_request(url, vectors)
 
-    print 'Log::Classifier:: predicts the class %s' % pred_class
-    return pred_class
+        success = response['success']
+        del response['success']
+        guesses = response
+        failed_images = {}
+    
+    except ConnectionError as ex:
+        success = False
+        guesses = {}
+        failed_images = {img_url: "Cannot establish a connection with Classifier at {} endpoint".format(url) for img_url in attr_vecs.keys()}
 
-def learn(attr_vec, true_class):
-    """
-    Forces the classifier to learn what class the sub-image belongs to.
+    return guesses, success, failed_images
+    
 
-    :param attr_vec: The long list of numerical representations of the attributes extracted (by olivia module) of a sub-image
-    :param true_class: The class that the sub-image belongs to
-    :return: None
-    """
-    raw_pred = perceptron.predict(attr_vec)
-    pred_class = tab.find_name(raw_pred)
-    print 'Log::Classifier:: predicts the class %s' % pred_class
-    print 'Log::Classifier:: learning'
+    
+"""
+Sends a list of attribute vectors and their true classes to the 
+classifier microservice, so it can learn
+"""
+def learn(attr_vecs, true_classes):
+    url = hostname + "/learn"
+    data = \
+        {
+            'vectors': attr_vecs,
+            'theme': true_classes
+        }
 
-    perceptron.feedback(true_class, pred_class, attr_vec)
+    try:
+        response = pinger.post_request(url, data)
+        success = response['success']
+        ready_to_guess = response['ready']
+        message = response['message']
+        failed_images = {}
+        
+    except ConnectionError as ex:
+        success = False
+        ready_to_guess = False
+        message = "Cannot establish a connection with Classifier at {} endpoint".format(url)
+        failed_images = {img_url: "Cannot establish a connection with Classifier at {} endpoint".format(url) for img_url in attr_vecs.keys()}
+
+    return success, ready_to_guess, message, failed_images
+
+
+def get_all_features():
+    url = hostname + "/features"
+    try:
+        response = pinger.get_request(url)
+        all_features = response['features']
+        success = response['success']
+        message = ""
+
+    except (ConnectTimeout, ConnectionError) as ex:
+        all_features = {}
+        success = False
+        message = "Failed to establish connection to {}".format(hostname)
+
+    return all_features, success, message
+
+    
+def add_new_feature(new_feature):
+    url = hostname + "/features/" + new_feature
+    try:
+        response = pinger.get_request(url)
+        success = response['success']
+        message = response['message']
+
+    except ConnectTimeout as ex:
+        message = "Connection with classifier timed out at {}".format(hostname)
+        success = False
+
+    return success, message
