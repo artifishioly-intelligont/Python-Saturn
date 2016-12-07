@@ -265,7 +265,6 @@ def get_class():
         if len(image_vectors) > 0:
             # return {url_n : class_n} and remove the success criteria
             image_direction_classes_dict, success, failed_classifications_directions = classifier.guess(image_vectors)
-            """
             all_failed_images.update(discover.condense_error_paths(failed_classifications_directions))
 
             image_class_probs = discover.condense_and_determine_probs(image_direction_classes_dict)
@@ -276,9 +275,9 @@ def get_class():
                 # returns a dict where all values have the value 'type'
                 matching_urls = {url: image_class_probs[url] for url in image_class_probs.keys() if discover.isMostLikelyFeature(type)}
                 unmatching_urls = {url: image_class_probs[url] for url in image_class_probs.keys() if not discover.isMostLikelyFeature(type)}
-            """
-            #else:
-            matching_urls = {url: image_direction_classes_dict[url] for url in image_direction_classes_dict.keys()}
+            
+            else:
+                matching_urls = {url: image_direction_classes_dict[url] for url in image_direction_classes_dict.keys()}
 
     except Exception as e:
         # Keep all the previous failed messages

@@ -9,7 +9,7 @@ vectors of the images and returns them in a list
 """
 def get_all_attr_vecs(remote_image_locs):
     
-    url = hostname + "/convert"
+    url = hostname + "/convert/nsew"
     data = {'urls' : remote_image_locs}
     try:
         response = pinger.post_request(url, data)
