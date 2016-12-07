@@ -255,11 +255,6 @@ def get_class():
     else:
         return json.dumps ({'success': False, 'message': 'No URLs specified, add a string separated by colons with key \'urls\''})
         
-    if 'theme' in request.form.keys():
-        type = request.form['theme'].lower()
-    else:
-        return json.dumps({'success': False, 'message': 'No search type specified, add a string value with key \'type\''})
-        
     # Get the image attribute vectors
     image_vectors, failed_images, success = olivia.get_all_attr_vecs(url_list)
     
@@ -270,13 +265,20 @@ def get_class():
         if len(image_vectors) > 0:
             # return {url_n : class_n} and remove the success criteria
             image_direction_classes_dict, success, failed_classifications_directions = classifier.guess(image_vectors)
+            """
             all_failed_images.update(discover.condense_error_paths(failed_classifications_directions))
 
             image_class_probs = discover.condense_and_determine_probs(image_direction_classes_dict)
+            
+            if 'theme' in request.form.keys():
+                type = request.form['theme'].lower()
 
-            # returns a dict where all values have the value 'type'
-            matching_urls = {url: image_class_probs[url] for url in image_class_probs.keys() if discover.isMostLikelyFeature(type)}
-            unmatching_urls = {url: image_class_probs[url] for url in image_class_probs.keys() if not discover.isMostLikelyFeature(type)}
+                # returns a dict where all values have the value 'type'
+                matching_urls = {url: image_class_probs[url] for url in image_class_probs.keys() if discover.isMostLikelyFeature(type)}
+                unmatching_urls = {url: image_class_probs[url] for url in image_class_probs.keys() if not discover.isMostLikelyFeature(type)}
+            """
+            #else:
+            matching_urls = {url: image_direction_classes_dict[url] for url in image_direction_classes_dict.keys()}
 
     except Exception as e:
         # Keep all the previous failed messages
