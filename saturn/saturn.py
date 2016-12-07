@@ -37,7 +37,8 @@ def learn():
     true_class = request.form['theme']
     remote_urls = request.form['urls'].split(";")
     # Remove the redundant last empty string
-    remote_urls.pop()
+    if '' in remote_urls:
+        remote_urls.remove('')
 
     # Convert that image to an attr vec
 
@@ -81,8 +82,10 @@ def correct():
     true_classes = request.form['themes'].split(";")
     remote_urls = request.form['urls'].split(";")
     # Remove the redundant last empty string
-    true_classes.pop()
-    remote_urls.pop()
+    if '' in true_classes:
+        true_classes.remove('')
+    if '' in remote_urls:
+        remote_urls.remove('')
     
     # Learn won't work if the length of the two lists aren't the same, so return with an error message
     data = {}
@@ -128,9 +131,11 @@ def guess():
     print 'Log::Saturn::Message Received::/guess/'
 
     remote_urls = request.form['urls'].split(";")
+
     # Remove the redundant last empty string
-    remote_urls.pop()
-        
+    if '' in remote_urls:
+        remote_urls.remove('')
+
     # Convert that image to an attr vec
     image_vectors, failed_images, vec_success = olivia.get_all_attr_vecs(remote_urls)
 
@@ -245,6 +250,9 @@ def get_class():
     
     if 'urls' in request.form.keys():
         url_list = request.form['urls'].split(';')
+        if '' in url_list:
+            url_list.remove('')
+
     else:
         return json.dumps ({'success': False, 'message': 'No URLs specified, add a string separated by colons with key \'urls\''})
         
