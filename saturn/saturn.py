@@ -248,11 +248,6 @@ def get_class():
     else:
         return json.dumps ({'success': False, 'message': 'No URLs specified, add a string separated by colons with key \'urls\''})
         
-    if 'theme' in request.form.keys():
-        type = request.form['theme'].lower()
-    else:
-        return json.dumps({'success': False, 'message': 'No search type specified, add a string value with key \'type\''})
-        
     # Get the image attribute vectors
     image_vectors, failed_images, success = olivia.get_all_attr_vecs(url_list)
     
@@ -266,10 +261,16 @@ def get_class():
             all_failed_images.update(discover.condense_error_paths(failed_classifications_directions))
 
             image_class_probs = discover.condense_and_determine_probs(image_direction_classes_dict)
-
-            # returns a dict where all values have the value 'type'
-            matching_urls = {url: image_class_probs[url] for url in image_class_probs.keys() if discover.isMostLikelyFeature(type)}
-            unmatching_urls = {url: image_class_probs[url] for url in image_class_probs.keys() if not discover.isMostLikelyFeature(type)}
+            
+            if 'theme' in request.form.keys():
+                type = request.form['theme'].lower()
+                
+                # returns a dict where all values have the value 'type'
+                matching_urls = {url: image_class_probs[url] for url in image_class_probs.keys() if discover.isMostLikelyFeature(type)}
+                unmatching_urls = {url: image_class_probs[url] for url in image_class_probs.keys() if not discover.isMostLikelyFeature(type)}
+            
+            else:
+                matching_urls = image_class_probs
 
     except Exception as e:
         # Keep all the previous failed messages
@@ -282,6 +283,8 @@ def get_class():
                     'unmatching_urls':{}
                     })
 
+    
+    
     return json.dumps({'success': len(all_failed_images) > 0,
                        'failed_images': all_failed_images,
                        'matching_urls': matching_urls,
