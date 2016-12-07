@@ -1,7 +1,7 @@
 from tools import pinger
 from requests.exceptions import ConnectionError, ConnectTimeout
 
-hostname = "http://localhost:5002"
+hostname = "http://svm-sc22g13-gdp-classifier.ecs.soton.ac.uk"
 
 """
 Sends a list of attribute vectors to the classifier microservice 
