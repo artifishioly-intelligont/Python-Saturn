@@ -1,7 +1,7 @@
 from tools import pinger
 from requests.exceptions import ConnectionError, ConnectTimeout
 
-hostname = "http://localhost:5001"
+hostname = "http://myrtle.ecs.soton.ac.uk"
 
 """
 Sends a list of image urls to olivia, which extracts the attribute
