@@ -131,9 +131,12 @@ def guess():
     print 'Log::Saturn::Message Received::/guess/'
 
     remote_urls = request.form['urls'].split(";")
+
+    print "Remote:"+str(remote_urls)
     # Remove the redundant last empty string
     if '' in remote_urls:
         remote_urls.remove('')
+    print "Remote(after):"+str(remote_urls)
 
     # Convert that image to an attr vec
     image_vectors, failed_images, vec_success = olivia.get_all_attr_vecs(remote_urls)
