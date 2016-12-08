@@ -306,6 +306,8 @@ def clear():
 		data['message'] = 'SVM Database\'s content not cleared'
 		data['ready'] = ready
 	else:
+
+
 		data['success'] = success
 		data['message'] = 'SVM Database\'s content cleared'
 		data['ready'] = ready

@@ -101,6 +101,7 @@ def clearSVM():
     except ConnectTimeout as ex:
         message = "Connection with classifier timed out at {}".format(hostname)
         success = False
+	ready = False
 
     return success, message, ready
 
