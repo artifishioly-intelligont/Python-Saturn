@@ -132,6 +132,7 @@ def guess():
     print 'Log::Saturn::Message Received::/guess/'
 
     remote_urls = request.form['urls'].split(";")
+
     # Remove the redundant last empty string
     if '' in remote_urls:
         remote_urls.remove('')
@@ -142,7 +143,7 @@ def guess():
     # guess what's in the attr vec!
     guesses, guess_success, failed_classifications = classifier.guess(image_vectors)
     failed_images.update(failed_classifications)
-
+    # Rawr
     first_url = remote_urls[0]
     data = {}
     if not guess_success:
@@ -257,7 +258,7 @@ def get_class():
         return json.dumps ({'success': False, 'message': 'No URLs specified, add a string separated by colons with key \'urls\''})
         
     # Get the image attribute vectors
-    image_vectors, failed_images, success = olivia.get_all_attr_vecs(url_list)
+    image_vectors, failed_images, success = olivia.get_all_attr_vecs_and_nsew(url_list)
     
     all_failed_images = dict(failed_images)
     matching_urls = {}
@@ -272,13 +273,12 @@ def get_class():
             
             if 'theme' in request.form.keys():
                 type = request.form['theme'].lower()
-
                 # returns a dict where all values have the value 'type'
                 matching_urls = {url: image_class_probs[url] for url in image_class_probs.keys() if discover.isMostLikelyFeature(type)}
                 unmatching_urls = {url: image_class_probs[url] for url in image_class_probs.keys() if not discover.isMostLikelyFeature(type)}
             
             else:
-                matching_urls = {url: image_direction_classes_dict[url] for url in image_direction_classes_dict.keys()}
+                matching_urls = image_class_probs
 
     except Exception as e:
         # Keep all the previous failed messages
@@ -291,7 +291,7 @@ def get_class():
                     'unmatching_urls':{}
                     })
 
-    return json.dumps({'success': len(all_failed_images) > 0,
+    return json.dumps({'success': not (len(all_failed_images) > 0),
                        'failed_images': all_failed_images,
                        'matching_urls': matching_urls,
                        'unmatching_urls': unmatching_urls
