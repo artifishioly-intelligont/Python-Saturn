@@ -277,7 +277,7 @@ def get_class():
                 unmatching_urls = {url: image_class_probs[url] for url in image_class_probs.keys() if not discover.isMostLikelyFeature(type)}
             
             else:
-                matching_urls = {url: image_direction_classes_dict[url] for url in image_direction_classes_dict.keys()}
+                matching_urls = image_direction_classes_dict
 
     except Exception as e:
         # Keep all the previous failed messages
