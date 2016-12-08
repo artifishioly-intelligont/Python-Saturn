@@ -1,10 +1,12 @@
-from flask import Flask, request
+from flask import Flask, request, send_from_directory, current_app
 import json
 import classifier
 import olivia
 import discover
 import os
 
+static_loc = os.path.expanduser('~/SaturnServer/static')
+print static_loc
 app = Flask('Saturn')
 
 
@@ -24,7 +26,20 @@ def index():
 
 @app.route('/docs')
 def reference():
-    return ''
+    return current_app.send_static_file('reference.html')
+@app.route('/docs/responses')
+def responses():
+    return current_app.send_static_file('responses.html')
+@app.route('/docs/requests')
+def requests():
+    return current_app.send_static_file('requests.html')
+
+@app.route('/sheet.css')
+def css1():
+    return current_app.send_static_file('sheet.css')
+@app.route('/docs/sheet.css')
+def css2():
+    return current_app.send_static_file('sheet.css')
 
 """
 The endpoint used to teach the classifier.
@@ -341,6 +356,5 @@ def long_reset():
 
 if __name__ == '__main__':
     print 'Log::Saturn:: Starting server'
-    app.debug = True
     app.run()
     print 'Log::Saturn:: Server closing'
