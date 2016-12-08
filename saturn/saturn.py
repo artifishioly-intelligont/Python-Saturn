@@ -326,10 +326,16 @@ def reset():
 
     return json.dumps(data)
 
-@app.route('/meteor', methods=['GET'])
+@app.route('/meteor', methods=['GET']) #TODO remove this method
 def long_reset():
-    request.method = 'DELETE'
-    return reset()
+    data = {}
+    success, message, ready = classifier.resetSVM()
+    data['success'] = success
+    data['message'] = 'SVM Database\'s content {} reset, Message:{}'.format(''if success else 'not', message)
+    data['ready'] = ready
+
+    return json.dumps(data)
+
 
 if __name__ == '__main__':
     print 'Log::Saturn:: Starting server'
