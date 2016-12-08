@@ -299,8 +299,8 @@ def get_class():
 
 @app.route('/clear', methods=['DELETE'])
 def clear():
-	success, message, ready = classifier.clearSVM()
 	data = {}
+	success, message, ready = classifier.clearSVM()
 	if not success:
 		data['success'] =  success
 		data['message'] = 'SVM Database\'s content not cleared'
