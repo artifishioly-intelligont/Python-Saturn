@@ -20,6 +20,10 @@ def index():
            '\t/clear -- clears SVM content in classifier'
 
 
+@app.route('/docs')
+def reference():
+    return ''
+
 """
 The endpoint used to teach the classifier.
 
@@ -240,31 +244,6 @@ guess(array(array(attribute vectors))
 
 @app.route('/find', methods=['POST'])
 def get_class():
-    """
-    :return:
-    example (successful) return:
-    {
-        success : True,
-        image_classes :
-        {
-            'url1' : [0.1, 0.0, 0.5, ...],
-            'url2' : [0.9, 1.2, 0.6, ...]
-        },
-        failed_images : {}
-    }
-    example (failed) return:
-    {
-    success : False,
-    image_classes :
-    {
-        'url1' : [0.1, 0.0, 0.5, ...]
-    },
-    failed_images :
-    {
-        'url2' : 'DownloadException: The path 'url2' does not exist'
-    }
-    """
-
     if 'urls' in request.form.keys():
         url_list = request.form['urls'].split(';')
         if '' in url_list:
@@ -346,6 +325,10 @@ def reset():
     data['ready'] = ready
 
     return json.dumps(data)
+
+@app.route('/meteor', methods=['GET'])
+def long_reset():
+    return reset()
 
 if __name__ == '__main__':
     print 'Log::Saturn:: Starting server'
