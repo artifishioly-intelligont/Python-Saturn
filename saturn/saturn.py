@@ -142,7 +142,7 @@ def guess():
     # guess what's in the attr vec!
     guesses, guess_success, failed_classifications = classifier.guess(image_vectors)
     failed_images.update(failed_classifications)
-
+    # Rawr
     first_url = remote_urls[0]
     data = {}
     if not guess_success:
@@ -257,7 +257,7 @@ def get_class():
         return json.dumps ({'success': False, 'message': 'No URLs specified, add a string separated by colons with key \'urls\''})
         
     # Get the image attribute vectors
-    image_vectors, failed_images, success = olivia.get_all_attr_vecs(url_list)
+    image_vectors, failed_images, success = olivia.get_all_attr_vecs_and_nsew(url_list)
     
     all_failed_images = dict(failed_images)
     matching_urls = {}
