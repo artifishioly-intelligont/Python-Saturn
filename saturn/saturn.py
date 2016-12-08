@@ -6,8 +6,7 @@ import discover
 import os
 
 static_loc = os.path.expanduser('~/SaturnServer/static')
-print static_loc
-app = Flask('Saturn')
+app = Flask('Saturn', static_url_path = static_loc)
 
 
 @app.route('/')
