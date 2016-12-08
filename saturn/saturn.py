@@ -320,7 +320,7 @@ def get_class():
 @app.route('/clear', methods=['DELETE', 'GET'])
 def clear():
     if request.method == 'GET':
-        return 'Please use HTTP-DELETE to use this endpoint'
+        return 'Please use HTTP-DELETE to use this endpoint, your request to clear was ignored.'
 
     data = {}
     success, message, ready = classifier.clearSVM()
