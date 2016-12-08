@@ -35,7 +35,7 @@ def condense_error_paths(image_direction_dict):
         if url in failed_urls:
             failed_urls[url] += "{}:{};".format(direction, error)
         else:
-            failed_urls[url] = "{}:{};".format(direction,error)
+            failed_urls[url] = "{}:{};".format(direction, error)
     return failed_urls
 
 

@@ -297,7 +297,9 @@ def get_class():
                                    not discover.isMostLikelyFeature(type)}
 
             else:
-                matching_urls = image_class_probs
+                # matching_urls = image_class_probs
+                matching_urls = {url: discover.highestChanceFeature(theme_probs) for url, theme_probs
+                                 in image_class_probs.items()}
 
     except Exception as e:
         # Keep all the previous failed messages
