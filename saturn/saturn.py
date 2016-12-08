@@ -5,7 +5,6 @@ import olivia
 import discover
 import os
 
-
 app = Flask('Saturn')
 
 
@@ -18,7 +17,8 @@ def index():
            '\t/learn/ -- POST a batch of urls to images and the feature type, in order to teach the system<br>' \
            '\t/features/ -- List All    features<br>' \
            '\t/features/{new_feature} -- Add the new feature<br>' \
-	   '\t/clear -- clears SVM content in classifier'
+           '\t/clear -- clears SVM content in classifier'
+
 
 """
 The endpoint used to teach the classifier.
@@ -31,6 +31,8 @@ Return: - success - success or fail
         - failed_images - a list of images that couldn't be vectorized or classified
         - ready - if the SVM is ready to predict classes
 """
+
+
 @app.route('/learn', methods=["POST"])
 def learn():
     print 'Log::Saturn::Message Recieved::/learn/'
@@ -46,7 +48,7 @@ def learn():
     image_vectors, failed_images, vec_success = olivia.get_all_attr_vecs(remote_urls)
 
     # Learn the attribute vectors with the given class
-    true_classes = [true_class]*len(image_vectors)
+    true_classes = [true_class] * len(image_vectors)
     learn_success, ready_to_guess, learn_message, failed_classifications = classifier.learn(image_vectors, true_classes)
     failed_images.update(failed_classifications)
 
@@ -56,10 +58,11 @@ def learn():
     data['ready'] = ready_to_guess
 
     if not learn_success:
-        data['message'] = 'There was an internal error: '+learn_message
+        data['message'] = 'There was an internal error: ' + learn_message
     else:
         data['message'] = learn_message
     return json.dumps(data)
+
 
 """
 The endpoint used to correct the classifier after it guesses incorrectly
@@ -70,15 +73,17 @@ Fields: - img_names - Where the image is stored
 
 Return: - ??success or fail??
 """
+
+
 @app.route('/correct', methods=["POST"])
 def correct():
     print 'Log::Saturn::Message Recieved::/correct'
 
     # *** One possible implementation... ***
-    #corrections = request.form['corrections']
-    #remote_urls = corrections.keys()
-    #true_classes = corrections.values()
-    
+    # corrections = request.form['corrections']
+    # remote_urls = corrections.keys()
+    # true_classes = corrections.values()
+
     # *** A potentially easier one ***
     true_classes = request.form['themes'].split(";")
     remote_urls = request.form['urls'].split(";")
@@ -87,7 +92,7 @@ def correct():
         true_classes.remove('')
     if '' in remote_urls:
         remote_urls.remove('')
-    
+
     # Learn won't work if the length of the two lists aren't the same, so return with an error message
     data = {}
     if len(true_classes) != len(remote_urls):
@@ -96,10 +101,10 @@ def correct():
         data['ready'] = False
         data['message'] = "Length miss-match between lists of URLs and True Classes provided"
         return json.dumps(data)
-    
+
     # Convert that image to an attr vec
     image_vectors, failed_images, vec_success = olivia.get_all_attr_vecs(remote_urls)
-    
+
     # Remove all the failed images from true_classes
     for failed_img in failed_images:
         del true_classes[remote_urls.index(failed_img)]
@@ -114,10 +119,11 @@ def correct():
     data['ready'] = ready_to_guess
 
     if not learn_success:
-        data['message'] = 'There was an internal error: '+learn_message
+        data['message'] = 'There was an internal error: ' + learn_message
     else:
         data['message'] = learn_message
     return json.dumps(data)
+
 
 """
 Endpoint to tell the user what class the image is guessed to belong to
@@ -127,6 +133,8 @@ Access: POST
 Return: - class - The class that the img is believed to belong to
 
 """
+
+
 @app.route('/guess', methods=["POST"])
 def guess():
     print 'Log::Saturn::Message Received::/guess/'
@@ -152,7 +160,7 @@ def guess():
             data['message'] = failed_images[first_url]
         else:
             data['message'] = 'There are not enough trained classes in the system. ' \
-                          'POST to {}/learn to train the system.'.format(classifier.hostname)
+                              'POST to {}/learn to train the system.'.format(classifier.hostname)
     else:
         if first_url in guesses.keys():
             data['success'] = True
@@ -172,6 +180,8 @@ Access: GET
 
 Return:	- classes - An array of strings (classes)
 """
+
+
 @app.route('/features')
 def get_all_features():
     print 'Log::Saturn::Message Recieved::/features/'
@@ -192,6 +202,7 @@ def get_all_features():
 
     return json.dumps(data)
 
+
 """
 An endpoint to add a new feature to the list
 
@@ -199,6 +210,8 @@ ACCESS: GET
 
 Return: ??success or failure??
 """
+
+
 @app.route('/features/<new_feature>')
 def add_new_feature(new_feature):
     print 'Log::Saturn::Message Recieved::/features/<new_feature>'
@@ -209,6 +222,7 @@ def add_new_feature(new_feature):
     data['message'] = msg
 
     return json.dumps(data)
+
 
 '''
 gets url list as input
@@ -222,6 +236,8 @@ learn(array(array(attribute vectors)), array(class_ids))
 guess(array(array(attribute vectors))
 --> returns array(class_names)
 '''
+
+
 @app.route('/find', methods=['POST'])
 def get_class():
     """
@@ -248,18 +264,19 @@ def get_class():
         'url2' : 'DownloadException: The path 'url2' does not exist'
     }
     """
-    
+
     if 'urls' in request.form.keys():
         url_list = request.form['urls'].split(';')
         if '' in url_list:
             url_list.remove('')
 
     else:
-        return json.dumps ({'success': False, 'message': 'No URLs specified, add a string separated by colons with key \'urls\''})
-        
+        return json.dumps(
+            {'success': False, 'message': 'No URLs specified, add a string separated by colons with key \'urls\''})
+
     # Get the image attribute vectors
     image_vectors, failed_images, success = olivia.get_all_attr_vecs_and_nsew(url_list)
-    
+
     all_failed_images = dict(failed_images)
     matching_urls = {}
     unmatching_urls = {}
@@ -270,13 +287,15 @@ def get_class():
             all_failed_images.update(discover.condense_error_paths(failed_classifications_directions))
 
             image_class_probs = discover.condense_and_determine_probs(image_direction_classes_dict)
-            
+
             if 'theme' in request.form.keys():
                 type = request.form['theme'].lower()
                 # returns a dict where all values have the value 'type'
-                matching_urls = {url: image_class_probs[url] for url in image_class_probs.keys() if discover.isMostLikelyFeature(type)}
-                unmatching_urls = {url: image_class_probs[url] for url in image_class_probs.keys() if not discover.isMostLikelyFeature(type)}
-            
+                matching_urls = {url: image_class_probs[url] for url in image_class_probs.keys() if
+                                 discover.isMostLikelyFeature(type)}
+                unmatching_urls = {url: image_class_probs[url] for url in image_class_probs.keys() if
+                                   not discover.isMostLikelyFeature(type)}
+
             else:
                 matching_urls = image_class_probs
 
@@ -284,12 +303,12 @@ def get_class():
         # Keep all the previous failed messages
         # then append the new error messages to the ones that failed during the classification process        
         all_failed_images.update({url: e.message for url in image_vectors.keys()})
-        
+
         return json.dumps({'success': False,
-                    'failed_images': all_failed_images,
-                    'matching_urls': {},
-                    'unmatching_urls':{}
-                    })
+                           'failed_images': all_failed_images,
+                           'matching_urls': {},
+                           'unmatching_urls': {}
+                           })
 
     return json.dumps({'success': not (len(all_failed_images) > 0),
                        'failed_images': all_failed_images,
@@ -297,24 +316,23 @@ def get_class():
                        'unmatching_urls': unmatching_urls
                        })
 
+
 @app.route('/clear', methods=['DELETE'])
 def clear():
-	success, message, ready = classifier.clearSVM()
-	data = {}
-	if not success:
-		data['success'] =  success
-		data['message'] = 'SVM Database\'s content not cleared'
-		data['ready'] = ready
-	else:
-		data['success'] = success
-		data['message'] = 'SVM Database\'s content cleared'
-		data['ready'] = ready
-	
-	return json.dumps(data)
+    success, message, ready = classifier.clearSVM()
+    data = {}
+    if not success:
+        data['success'] = success
+        data['message'] = 'SVM Database\'s content not cleared'
+        data['ready'] = ready
+    else:
+        data['success'] = success
+        data['message'] = 'SVM Database\'s content cleared'
+        data['ready'] = ready
+
+    return json.dumps(data)
 
 
-	
-	
 if __name__ == '__main__':
     print 'Log::Saturn:: Starting server'
     app.debug = True
