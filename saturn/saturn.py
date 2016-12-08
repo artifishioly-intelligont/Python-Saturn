@@ -290,7 +290,7 @@ def get_class():
                     'unmatching_urls':{}
                     })
 
-    return json.dumps({'success': len(all_failed_images) > 0,
+    return json.dumps({'success': not (len(all_failed_images) > 0),
                        'failed_images': all_failed_images,
                        'matching_urls': matching_urls,
                        'unmatching_urls': unmatching_urls
