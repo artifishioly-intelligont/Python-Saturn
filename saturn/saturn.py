@@ -317,7 +317,7 @@ def get_class():
                        })
 
 
-@app.route('/clear', methods=['GET'])
+@app.route('/clear', methods=['DELETE'])
 def clear():
     data = {}
     success, message, ready = classifier.clearSVM()
