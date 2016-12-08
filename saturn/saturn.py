@@ -23,24 +23,6 @@ def index():
 
 
 
-@app.route('/docs')
-def reference():
-    print "File Loc:"+str(static_loc)
-    return app.send_static_file('reference.html')
-@app.route('/docs/responses')
-def responses():
-    return current_app.send_static_file('responses.html')
-@app.route('/docs/requests')
-def requests():
-    return current_app.send_static_file('requests.html')
-
-@app.route('/sheet.css')
-def css1():
-    return current_app.send_static_file('sheet.css')
-@app.route('/docs/sheet.css')
-def css2():
-    return current_app.send_static_file('sheet.css')
-
 """
 The endpoint used to teach the classifier.
 
