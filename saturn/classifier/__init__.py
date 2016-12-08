@@ -110,10 +110,10 @@ def clearSVM():
     return success, message, ready
 
 def clearSVM():
-    changeSVMState('clear')
+    return changeSVMState('clear')
 
 def resetSVM():
-    changeSVMState('reset')
+    return changeSVMState('reset')
 
 def changeSVMState(endpoint):
     url = hostname + "/"+endpoint
