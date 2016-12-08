@@ -26,7 +26,7 @@ def index():
 @app.route('/docs')
 def reference():
     print "File Loc:"+str(static_loc)
-    return current_app.send_static_file('reference.html')
+    return app.send_static_file('reference.html')
 @app.route('/docs/responses')
 def responses():
     return current_app.send_static_file('responses.html')
