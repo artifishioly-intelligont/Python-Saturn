@@ -88,3 +88,19 @@ def add_new_feature(new_feature):
         success = False
 
     return success, message
+
+def clearSVM():
+    url = hostname + "/clear"
+    
+    try:
+        response = pinger.get_request(url)
+        success = response['success']
+        message = response['message']
+	ready = response['ready']
+
+    except ConnectTimeout as ex:
+        message = "Connection with classifier timed out at {}".format(hostname)
+        success = False
+
+    return success, message, ready
+

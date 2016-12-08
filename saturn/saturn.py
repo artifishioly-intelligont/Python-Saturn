@@ -17,7 +17,8 @@ def index():
            '\t/guess/{degas_image_loc} -- Determine which feature the image is<br>' \
            '\t/learn/ -- POST a batch of urls to images and the feature type, in order to teach the system<br>' \
            '\t/features/ -- List All    features<br>' \
-           '\t/features/{new_feature} -- Add the new feature<br>'
+           '\t/features/{new_feature} -- Add the new feature<br>' \
+	   '\t/clear -- clears SVM content in classifier'
 
 """
 The endpoint used to teach the classifier.
@@ -296,7 +297,24 @@ def get_class():
                        'unmatching_urls': unmatching_urls
                        })
 
+@app.route('/clear', methods=['DELETE'])
+def clear():
+	success, message, ready = classifier.clearSVM()
+	data = {}
+	if not success:
+		data['success'] =  success
+		data['message'] = 'SVM Database\'s content not cleared'
+		data['ready'] = ready
+	else:
+		data['success'] = success
+		data['message'] = 'SVM Database\'s content cleared'
+		data['ready'] = ready
+	
+	return json.dumps(data)
 
+
+	
+	
 if __name__ == '__main__':
     print 'Log::Saturn:: Starting server'
     app.debug = True
