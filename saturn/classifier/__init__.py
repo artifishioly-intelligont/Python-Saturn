@@ -9,10 +9,11 @@ to be classified
 
 :param: attr_vecs: A dictionary of string remote_url to a double array, the attribute vector for that image
 """
+
+
 def guess(attr_vecs):
     url = hostname + "/guess"
-    vectors = {'vectors' : attr_vecs}
-    
+    vectors = {'vectors': attr_vecs}
 
     try:
         response = pinger.post_request(url, vectors)
@@ -21,21 +22,22 @@ def guess(attr_vecs):
         del response['success']
         guesses = response
         failed_images = {}
-    
+
     except ConnectionError as ex:
         success = False
         guesses = {}
-        failed_images = {img_url: "Cannot establish a connection with Classifier at {} endpoint".format(url) for img_url in attr_vecs.keys()}
+        failed_images = {img_url: "Cannot establish a connection with Classifier at {} endpoint".format(url) for img_url
+                         in attr_vecs.keys()}
 
     return guesses, success, failed_images
 
 
-
-    
 """
 Sends a list of attribute vectors and their true classes to the 
 classifier microservice, so it can learn
 """
+
+
 def learn(attr_vecs, true_classes):
     url = hostname + "/learn"
     data = \
@@ -50,12 +52,13 @@ def learn(attr_vecs, true_classes):
         ready_to_guess = response['ready']
         message = response['message']
         failed_images = {}
-        
+
     except ConnectionError as ex:
         success = False
         ready_to_guess = False
         message = "Cannot establish a connection with Classifier at {} endpoint".format(url)
-        failed_images = {img_url: "Cannot establish a connection with Classifier at {} endpoint".format(url) for img_url in attr_vecs.keys()}
+        failed_images = {img_url: "Cannot establish a connection with Classifier at {} endpoint".format(url) for img_url
+                         in attr_vecs.keys()}
 
     return success, ready_to_guess, message, failed_images
 
@@ -75,7 +78,7 @@ def get_all_features():
 
     return all_features, success, message
 
-    
+
 def add_new_feature(new_feature):
     url = hostname + "/features/" + new_feature
     try:
@@ -89,19 +92,41 @@ def add_new_feature(new_feature):
 
     return success, message
 
+
 def clearSVM():
     url = hostname + "/clear"
-    
+
     try:
         response = pinger.get_request(url)
         success = response['success']
         message = response['message']
-	ready = response['ready']
+        ready = response['ready']
 
     except ConnectTimeout as ex:
         message = "Connection with classifier timed out at {}".format(hostname)
         success = False
-	ready = False
+        ready = False
+
+    return success, message, ready
+
+def clearSVM():
+    changeSVMState('clear')
+
+def resetSVM():
+    changeSVMState('reset')
+
+def changeSVMState(endpoint):
+    url = hostname + "/"+endpoint
+    try:
+        response = pinger.get_request(url)
+        success = response['success']
+        message = response['message']
+        ready = response['ready']
+
+    except ConnectTimeout as ex:
+        message = "Connection with classifier timed out at {}".format(hostname)
+        success = False
+        ready = False
 
     return success, message, ready
 

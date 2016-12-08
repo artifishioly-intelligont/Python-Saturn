@@ -324,18 +324,26 @@ def clear():
 
     data = {}
     success, message, ready = classifier.clearSVM()
-    if not success:
-        data['success'] = success
-        data['message'] = 'SVM Database\'s content not cleared'
-        data['ready'] = ready
-    else:
+    data['success'] = success
+    data['message'] = 'SVM Database\'s content {} cleared, Message:{}'.format(''if success else 'not', message)
+    data['ready'] = ready
 
-        data['success'] = success
-        data['message'] = 'SVM Database\'s content cleared'
-        data['ready'] = ready
 
     return json.dumps(data)
 
+
+@app.route('/reset', methods=['DELETE', 'GET'])
+def reset():
+    if request.method == 'GET':
+        return 'Please use HTTP-DELETE to use this endpoint, your request to reset was ignored.'
+
+    data = {}
+    success, message, ready = classifier.resetSVM()
+    data['success'] = success
+    data['message'] = 'SVM Database\'s content {} reset, Message:{}'.format(''if success else 'not', message)
+    data['ready'] = ready
+
+    return json.dumps(data)
 
 if __name__ == '__main__':
     print 'Log::Saturn:: Starting server'
