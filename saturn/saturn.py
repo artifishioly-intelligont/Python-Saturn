@@ -328,6 +328,7 @@ def reset():
 
 @app.route('/meteor', methods=['GET'])
 def long_reset():
+    request.method = 'DELETE'
     return reset()
 
 if __name__ == '__main__':
