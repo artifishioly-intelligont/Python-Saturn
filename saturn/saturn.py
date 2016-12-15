@@ -18,8 +18,8 @@ def index():
            '\t/learn/ -- POST a batch of urls to images and the feature type, in order to teach the system<br>' \
            '\t/features/ -- List all features<br>' \
            '\t/features/{new_feature} -- Add the new feature<br>' \
-           '\t/clear -- clears classifier\'s content in classifier' \
-	   '\t/download -- sends url to olivia for download and vectorization' \
+           '\t/clear -- clears classifier\'s content in classifier<br>' \
+	   '\t/download -- sends url to olivia for download and vectorization<br>' \
            '\t/reset -- resets the classifier\'s content with some default training data'
 
 
