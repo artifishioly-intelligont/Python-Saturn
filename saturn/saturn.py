@@ -347,13 +347,21 @@ def download():
 
     if request.method == 'POST':
         if 'urls' in request.form.keys:
-            payload = request.form['urls']
+            payload = request.form['urls'].split(';')
+            
+            if '' in payload:
+                payload.remove('')
+
             data = olivia.send_download_urls(payload)
         else:
             return json.dumps({'success': False, 'message': 'No URLs provided'})
 
         if 'ids' in request.form.keys:
-            payload = request.form['ids']
+            payload = request.form['urls'].split(';')
+
+            if '' in payload:
+                payload.remove('')
+
             data = olivia.send_download_urls(payload)
         else:
             return json.dumps({'success': False, 'message': 'No IDs provided'})
