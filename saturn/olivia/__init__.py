@@ -55,3 +55,6 @@ def get_all_attr_vecs_and_nsew(remote_image_locs):
         success = False
 
     return image_vectors, failed_images, success
+
+def send_download_urls(payload):
+    return pinger.post_request(hostname, payload)

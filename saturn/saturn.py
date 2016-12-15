@@ -326,9 +326,7 @@ def clear():
     data['message'] = 'SVM Database\'s content {} cleared, Message:{}'.format(''if success else 'not', message)
     data['ready'] = ready
 
-
     return json.dumps(data)
-
 
 @app.route('/reset', methods=['DELETE', 'GET'])
 def reset():
@@ -343,16 +341,28 @@ def reset():
 
     return json.dumps(data)
 
-@app.route('/meteor', methods=['GET']) #TODO remove this method
-def long_reset():
-    data = {}
-    success, message, ready = classifier.resetSVM()
-    data['success'] = success
-    data['message'] = 'SVM Database\'s content {} reset, Message:{}'.format(''if success else 'not', message)
-    data['ready'] = ready
+@app.route('/download', methods=['POST']) #TODO remove this method
+def download():
 
-    return json.dumps(data)
+    if request.method == 'POST':
+        if 'urls' in request.form.keys:
+            payload = request.form['urls']
+            data = olivia.send_download_urls(payload)
+        else:
+            return json.dumps({'success': False, 'message': 'No URLs provided'})
 
+        if 'ids' in request.form.keys:
+            payload = request.form['ids']
+            data = olivia.send_download_urls(payload)
+        else:
+            return json.dumps({'success': False, 'message': 'No IDs provided'})
+
+        if data['success']:
+            return json.dumps({'success': True, 'message': data['message']})
+        else:
+            return json.dumps({'success': False, 'message': data['message']})
+    else:
+        return json.dumps({'success': False, 'message': 'Try POST method'})
 
 if __name__ == '__main__':
     print 'Log::Saturn:: Starting server'
