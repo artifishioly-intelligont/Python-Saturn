@@ -19,6 +19,7 @@ def index():
            '\t/features/ -- List all features<br>' \
            '\t/features/{new_feature} -- Add the new feature<br>' \
            '\t/clear -- clears classifier\'s content in classifier' \
+	   '\t/download -- sends url to olivia for download and vectorization' \
            '\t/reset -- resets the classifier\'s content with some default training data'
 
 
