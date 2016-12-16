@@ -346,30 +346,34 @@ def reset():
 def download():
 
     if request.method == 'POST':
-        if 'urls' in request.form.keys:
-            payload = request.form['urls'].split(';')
+        print "check "
+        if 'urls' in request.form.keys():
+            urls = request.form['urls'].split(';')
+            print urls
 
-            if '' in payload:
-                return json.dumps({'success': False, 'message': 'List empty'})
-            else:
-                data = olivia.send_download_urls(payload)
+            if '' in urls:
+                urls.remove('')
+
+                payload = {'urls' : urls}
+
+            if 'ids' in request.form.keys():
+                ids = request.form['ids'].split(';')
+
+                if '' in ids:
+                    payload.remove('')
+                payload['ids'] = ids
         else:
-            return json.dumps({'success': False, 'message': 'No URLs provided'})
+            return json.dumps({'success': False, 'message': 'No URLs or IDs provided'})
 
-        if 'ids' in request.form.keys:
-            payload = request.form['urls'].split(';')
-
-            if '' in payload:
-                return json.dumps({'success': False, 'message': 'List empty'})
-            else:
-                data = olivia.send_download_urls(payload)
+        if len(payload) == 0:
+            return json.dumps({'success': False, 'message': 'No URLs or IDs provided'})
         else:
-            return json.dumps({'success': False, 'message': 'No IDs provided'})
+            data = olivia.send_download_urls(payload)
 
         if data['success']:
-            return json.dumps({'success': True, 'message': data['message']})
+            return json.dumps({'success': True, 'message': 'Tiles successfully downloaded and vectorized'})
         else:
-            return json.dumps({'success': False, 'message': data['message']})
+            return json.dumps({'success': False, 'message': 'Tiles could not be downloaded and vectorized'})
     else:
         return json.dumps({'success': False, 'message': 'Try POST method'})
 
